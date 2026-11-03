@@ -1,9 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Lernkartei mark: an index card with its tab. Full-bleed square so it works as a maskable icon. -->
-  <rect width="512" height="512" fill="#141414"/>
-  <g transform="translate(256 262) scale(14) translate(-12 -12.25)">
-    <rect x="3" y="7" width="18" height="14" rx="2" fill="#ffffff"/>
-    <rect x="6" y="3.5" width="7" height="5" rx="1.2" fill="#ffffff"/>
-    <path d="M7 13h10M7 16.5h6" stroke="#141414" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- Lernkartei logo: a waving German flag on its pole. Full-bleed square so it also works as a maskable icon.
+       Flag colours: Schwarz #000000, Rot #DD0000, Gold #FFCE00. -->
+  <defs>
+    <linearGradient id="fold" x1="118" x2="404" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#000" stop-opacity=".08"/>
+      <stop offset=".25" stop-color="#fff" stop-opacity=".22"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".75" stop-color="#000" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="cloth"><path d="M118 150 C200 104 300 200 404 148 L404 358 C300 410 200 314 118 360 Z"/></clipPath>
+  </defs>
+  <rect width="512" height="512" fill="#f2f4f7"/>
+  <!-- pole with its knob -->
+  <rect x="104" y="112" width="14" height="300" rx="7" fill="#3a3f47"/>
+  <circle cx="111" cy="106" r="13" fill="#c9a227"/>
+  <g clip-path="url(#cloth)">
+    <!-- three bands, each following the same wave -->
+    <path d="M118 150 C200 104 300 200 404 148 L404 218 C300 270 200 174 118 220 Z" fill="#000000"/>
+    <path d="M118 220 C200 174 300 270 404 218 L404 288 C300 340 200 244 118 290 Z" fill="#dd0000"/>
+    <path d="M118 290 C200 244 300 340 404 288 L404 358 C300 410 200 314 118 360 Z" fill="#ffce00"/>
+    <!-- folds: light on the crest, shade in the trough -->
+    <rect x="118" y="90" width="286" height="340" fill="url(#fold)"/>
   </g>
 </svg>

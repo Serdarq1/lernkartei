@@ -73,7 +73,7 @@ h1{font-size:24px} h2{font-size:24px} h3{font-size:16px}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ground)}
 header.top .wrap{display:flex;align-items:center;gap:10px;padding-block:8px;min-height:56px}
 .brand{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:500}
-.brand svg{width:24px;height:24px;flex:none}
+.brand img{width:28px;height:28px;flex:none;border-radius:6px}
 .brand .lv{color:var(--muted);font-weight:400}
 .spacer{flex:1}
 .chip{font-size:14px;color:var(--muted)}
@@ -933,8 +933,8 @@ function setTab(t) {
 }
 document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => setTab(b.dataset.tab));
 
-// product mark: an index card with its tab, the Kartei the app is named after
-const MARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2" fill="currentColor"/><rect x="6" y="3.5" width="7" height="5" rx="1.2" fill="currentColor"/><path d="M7 13h10M7 16.5h6" stroke="var(--ground)" stroke-width="1.6" stroke-linecap="round"/></svg>';
+// product mark: the waving-flag logo, the same file as the app icon
+const MARK = '<img src="icons/icon.svg" alt="" width="28" height="28">';
 const brand = (sub = "A1 · A2") => `<div class="brand">${MARK}Lernkartei <span class="lv">${sub}</span></div>`;
 function headerHome() {
   const n = streak();

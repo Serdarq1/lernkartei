@@ -1,7 +1,7 @@
 // Offline cache for Lernkartei. Bump VERSION whenever index.html, data.js or the icons change,
 // so installed apps fetch the new files and drop the old cache.
-const VERSION = "lernkartei-v1";
-const SHELL = ["./", "index.html", "data.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
+const VERSION = "lernkartei-v2";
+const SHELL = ["./", "index.html", "data.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/icon.svg"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
