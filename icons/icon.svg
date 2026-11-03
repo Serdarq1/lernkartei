@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Lernkartei mark: an index card with its tab. Full-bleed square so it works as a maskable icon. -->
+  <rect width="512" height="512" fill="#141414"/>
+  <g transform="translate(256 262) scale(14) translate(-12 -12.25)">
+    <rect x="3" y="7" width="18" height="14" rx="2" fill="#ffffff"/>
+    <rect x="6" y="3.5" width="7" height="5" rx="1.2" fill="#ffffff"/>
+    <path d="M7 13h10M7 16.5h6" stroke="#141414" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
+</svg>

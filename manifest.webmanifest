@@ -1,0 +1,17 @@
+{
+  "name": "Lernkartei A1·A2",
+  "short_name": "Lernkartei",
+  "description": "Deutsch A1–A2: Artikel, Plural, Verben, Goethe-Wortliste und Grammatik als Lernkarten.",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f4f7",
+  "theme_color": "#f2f4f7",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

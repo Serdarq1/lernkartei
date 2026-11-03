@@ -1,0 +1,7 @@
+# Course materials stay private: only the app is published.
+*.pdf
+*.docx
+.cache/
+.claude/
+.taste-skill/
+.DS_Store

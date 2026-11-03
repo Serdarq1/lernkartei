@@ -1,0 +1,1257 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lernkartei A1·A2</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lernkartei">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#f2f4f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap">
+<style>
+/* tasteskill app style: achromatic-ledger (seed 1604688795). Chrome is ink only; the only hues are data:
+   der / die / das (the learner colour code), the Leitner boxes that count as "sicher", and right / wrong.
+   Layout: one centred 640px column, 16px phone margins, bottom tab bar; one gap value (12px), card radius 8, control 6. */
+:root{
+  --ground:#f2f4f7; --surface:#ffffff; --raised:#eceef1; --active:#e5e5e5;
+  --border:#e3e6ea; --rule:#eef0f2; --control:#d4d4d4;
+  --text:#0a0a0a; --muted:#5f6368; --faint:#6b6b6b;
+  --primary:#141414; --on-primary:#ffffff;
+  --hue:#1d5fbf;                                   /* the one chart hue: cards that are "sicher" */
+  --der:#1d5fbf; --die:#b3261e; --das:#1e7a46;     /* data: grammatical gender */
+  --der-bg:#e8effa; --die-bg:#fbeceb; --das-bg:#e6f3ec;
+  --positive:#247b50; --negative:#c4242a;
+  --pill-positive-bg:#dcfae5; --pill-positive-ink:#04250e;
+  --pill-negative-bg:#ffedea; --pill-negative-ink:#831c1e;
+  --radius-card:8px; --radius-control:6px; --gap:12px;
+  --font:"Geist", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#000000; --surface:#111111; --raised:#1c1c1c; --active:#262626;
+  --border:#262626; --rule:#1a1a1a; --control:#444444;
+  --text:#ffffff; --muted:#b4b4b4; --faint:#949494;
+  --primary:#ffffff; --on-primary:#000000;
+  --hue:#6f9ef0; --der:#7ea6ff; --die:#ff7b72; --das:#4fc486;
+  --der-bg:#13203a; --die-bg:#331614; --das-bg:#10291c;
+  --positive:#3fc07a; --negative:#e5566f;
+  --pill-positive-bg:#172a1d; --pill-positive-ink:#3fc07a; --pill-negative-bg:#2c1a20; --pill-negative-ink:#e5566f;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --ground:#000000; --surface:#111111; --raised:#1c1c1c; --active:#262626;
+  --border:#262626; --rule:#1a1a1a; --control:#444444;
+  --text:#ffffff; --muted:#b4b4b4; --faint:#949494;
+  --primary:#ffffff; --on-primary:#000000;
+  --hue:#6f9ef0; --der:#7ea6ff; --die:#ff7b72; --das:#4fc486;
+  --der-bg:#13203a; --die-bg:#331614; --das-bg:#10291c;
+  --positive:#3fc07a; --negative:#e5566f;
+  --pill-positive-bg:#172a1d; --pill-positive-ink:#3fc07a; --pill-negative-bg:#2c1a20; --pill-negative-ink:#e5566f;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--ground);color:var(--text);font:400 16px/1.5 var(--font);-webkit-text-size-adjust:100%;
+  -webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ground)}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+:focus-visible{outline:2px solid var(--hue);outline-offset:2px;border-radius:var(--radius-control)}
+h1,h2,h3{font-weight:500;line-height:1.25;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:24px} h2{font-size:24px} h3{font-size:16px}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.muted{color:var(--muted)}
+
+/* shell */
+#app{min-height:100%;display:flex;flex-direction:column}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ground)}
+header.top .wrap{display:flex;align-items:center;gap:10px;padding-block:8px;min-height:56px}
+.brand{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:500}
+.brand svg{width:24px;height:24px;flex:none}
+.brand .lv{color:var(--muted);font-weight:400}
+.spacer{flex:1}
+.chip{font-size:14px;color:var(--muted)}
+.iconbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:44px;height:44px;border-radius:var(--radius-control);
+  border:1px solid var(--control);background:var(--surface);padding:0 12px;font-size:14px;font-weight:500}
+.iconbtn svg{width:18px;height:18px}
+.iconbtn.tip{background:var(--active);border-color:transparent}
+main{flex:1;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+main.play{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+nav.tabs button{background:none;border:0;padding:8px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:500;color:var(--muted);min-height:56px}
+nav.tabs button svg{width:20px;height:20px}
+nav.tabs button[aria-current="page"]{color:var(--text)}
+nav.tabs button[aria-current="page"] .pip{background:var(--active)}
+nav.tabs .pip{display:grid;place-items:center;width:48px;height:28px;border-radius:999px}
+
+/* title row */
+.titlerow{display:grid;gap:4px;padding-block:8px 16px}
+.titlerow p{margin:0;color:var(--muted);font-size:14px}
+.titlerow .go{margin-top:12px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card)}
+.blockhead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px;margin:24px 0 8px}
+.blockhead h2{flex:none}
+.blockhead h2{font-size:16px}
+.blockhead small{font-size:12px;color:var(--muted)}
+
+/* KPI strip: one card split by dividers */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr)}
+.kpi{padding:12px 16px;display:grid;gap:2px}
+.kpi + .kpi{border-left:1px solid var(--border)}
+.kpi span{font-size:12px;color:var(--muted)}
+.kpi b{font-size:30px;font-weight:500;line-height:1.1}
+
+/* signature: the Leitner box (Kartei) */
+.kartei{padding:16px;display:grid;gap:10px}
+.kartei .bars{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;align-items:end;height:112px}
+.kartei .col{display:grid;grid-template-rows:auto 1fr;align-items:end;height:100%;gap:4px;text-align:center;font-size:12px}
+.kartei .col b{font-weight:500;font-size:14px}
+.kartei .fill{background:var(--text);border-radius:3px 3px 0 0;min-height:2px}
+.kartei .col.safe .fill{background:var(--hue)}
+.kartei .col.new .fill{background:var(--control)}
+.kartei .labels{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;text-align:center;font-size:12px;color:var(--muted);border-top:1px solid var(--border);padding-top:6px}
+.kartei .key{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.kartei .key i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+.seg{display:flex;background:var(--raised);border-radius:var(--radius-control);padding:3px;gap:3px}
+.seg button{flex:1;border:1px solid transparent;background:none;border-radius:5px;padding:8px 6px;font-weight:500;font-size:14px;color:var(--muted);min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--text);border-color:var(--border)}
+
+/* deck list: one panel, rows split by rules */
+.decks{display:grid}
+.deck{display:grid;grid-template-columns:1fr auto;gap:2px 16px;align-items:center;text-align:left;background:none;border:0;padding:14px 16px;min-height:72px;width:100%}
+.deck + .deck{border-top:1px solid var(--rule)}
+.deck:hover{background:var(--raised)}
+.deck:active{background:var(--active)}
+.deck h3{font-size:16px;font-weight:500}
+.deck p{margin:0;font-size:14px;color:var(--muted);line-height:1.4;grid-column:1}
+.deck .score{grid-row:1 / span 2;grid-column:2;display:grid;justify-items:end;gap:6px;font-size:14px;min-width:92px}
+.deck .score small{font-size:12px;color:var(--muted)}
+.bar{height:4px;border-radius:2px;background:var(--raised);overflow:hidden;width:100%}
+.bar i{display:block;height:100%;background:var(--hue)}
+
+/* play */
+.playhead{display:flex;align-items:center;gap:10px}
+.progress{flex:1;height:4px;background:var(--raised);border-radius:2px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--text);transition:width .25s}
+.count{font-size:14px;color:var(--muted);min-width:44px;text-align:right}
+.stage{display:grid;gap:var(--gap);padding-top:4px}
+.card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);
+  padding:40px 16px 56px;min-height:232px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px;overflow:hidden}
+.card .meta{position:absolute;top:12px;left:16px;right:16px;display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted)}
+.card .q{font-weight:500;font-size:clamp(28px,8.5vw,36px);letter-spacing:-.02em;line-height:1.15;overflow-wrap:anywhere}
+.card .q.long{font-size:clamp(18px,5vw,20px);letter-spacing:0;line-height:1.45}
+.card .sub{color:var(--muted);font-size:14px;max-width:44ch}
+.card .ex{font-size:14px;color:var(--muted);border-top:1px solid var(--rule);padding-top:10px;margin-top:4px;max-width:46ch}
+.say{position:absolute;right:8px;bottom:8px;width:44px;height:44px;border-radius:var(--radius-control);border:1px solid var(--control);background:var(--surface);display:grid;place-items:center;color:var(--muted)}
+.say svg{width:18px;height:18px}
+.blank{display:inline-block;min-width:3em;border-bottom:2px solid var(--text);padding:0 4px;color:var(--text)}
+.opts{display:grid;gap:8px}
+.opts.three{grid-template-columns:repeat(3,1fr)}
+.opt{min-height:52px;border-radius:var(--radius-control);border:1px solid var(--control);background:var(--surface);padding:12px 14px;font-weight:500;font-size:16px;
+  text-align:left;display:flex;align-items:center;justify-content:space-between;gap:10px;line-height:1.3;overflow-wrap:anywhere}
+.opt:hover:not(:disabled){border-color:var(--text)}
+.opt:active:not(:disabled){background:var(--raised)}
+.opt .mark{flex:none;display:none}
+.opts.three .opt{justify-content:center;text-align:center;font-size:20px;min-height:64px;border:0}
+.opt.der{color:var(--der);background:var(--der-bg)}
+.opt.die{color:var(--die);background:var(--die-bg)}
+.opt.das{color:var(--das);background:var(--das-bg)}
+.opt.right{outline:2px solid var(--positive);outline-offset:-2px;color:var(--positive)}
+.opt.right .mark{display:block}
+.opt.wrong{outline:2px solid var(--negative);outline-offset:-2px;color:var(--negative);text-decoration:line-through}
+.opt.wrong .mark{display:block}
+.opt.dim{opacity:.4}
+.opt:disabled{cursor:default}
+.feedback{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);padding:14px 16px;display:grid;gap:6px;font-size:15px}
+.feedback h3{font-size:16px;display:flex;align-items:center;gap:6px}
+.feedback.ok h3{color:var(--positive)} .feedback.bad h3{color:var(--negative)}
+.feedback p{margin:0}
+.hintbox{background:var(--raised);border-radius:var(--radius-card);padding:12px 14px;font-size:15px;display:grid;gap:4px}
+.hintbox .lbl{font-size:12px;color:var(--muted)}
+.actions{display:grid;gap:8px;grid-template-columns:1fr 1fr;position:sticky;bottom:0;padding:12px 0 calc(10px + env(safe-area-inset-bottom,0px));background:var(--ground)}
+.actions.one{grid-template-columns:1fr}
+.btn{min-height:48px;border-radius:var(--radius-control);border:1px solid transparent;font-weight:500;font-size:16px;padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:var(--primary);color:var(--on-primary)}
+.btn.primary:active{opacity:.85}
+.btn.ghost{background:var(--surface);border-color:var(--control)}
+.btn.ghost:active,.btn.secondary:active{background:var(--raised)}
+.btn.secondary{background:var(--active)}
+.btn.again{background:var(--surface);border-color:var(--control);color:var(--negative)}
+.btn.good{background:var(--primary);color:var(--on-primary)}
+.flip{cursor:pointer;user-select:none;touch-action:pan-y}
+.flip .back{display:grid;gap:8px;justify-items:center}
+.flip .divider{width:40px;border-top:1px solid var(--border)}
+.tapnote{font-size:14px;color:var(--muted)}
+.swipe-l{transform:translateX(-14px);transition:transform .15s}
+.swipe-r{transform:translateX(14px);transition:transform .15s}
+.art{font-weight:500}
+.art.der{color:var(--der)} .art.die{color:var(--die)} .art.das{color:var(--das)}
+
+/* results */
+.result{display:grid;gap:12px;padding-top:8px}
+.result .big{font-size:30px;font-weight:500;line-height:1.1}
+.missed{display:grid}
+.missed div{padding:10px 16px;font-size:14px}
+.missed div + div{border-top:1px solid var(--rule)}
+.missed div span{color:var(--muted)}
+
+/* help */
+.search{width:100%;min-height:44px;border-radius:var(--radius-control);border:1px solid var(--control);background:var(--surface);padding:8px 12px;font:inherit;font-size:16px;color:var(--text)}
+.search::placeholder{color:var(--faint)}
+.topics{display:grid;margin-top:var(--gap)}
+details.topic + details.topic{border-top:1px solid var(--rule)}
+details.topic summary{list-style:none;padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;min-height:52px}
+details.topic summary::-webkit-details-marker{display:none}
+details.topic summary h3{font-size:16px;flex:1}
+details.topic summary .lvl{font-size:12px;color:var(--muted)}
+details.topic summary::after{content:"";width:8px;height:8px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(45deg);transition:transform .2s;margin-right:4px}
+details.topic[open] summary::after{transform:rotate(-135deg)}
+.tbody{padding:0 16px 16px;display:grid;gap:10px;font-size:15px;min-width:0}
+.tbody p{margin:0}
+.tbody ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.tbody .ex{background:var(--raised);border-radius:var(--radius-control);padding:8px 12px;font-size:14px}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--radius-control)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap}
+th{font-size:12px;font-weight:500;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.tbody .practice{justify-self:start}
+mark{background:none;color:inherit;font-weight:500;text-decoration:underline 1.5px;text-underline-offset:3px}
+
+/* sheet (floats, so it may carry a shadow) */
+.sheet-bg{position:fixed;inset:0;background:rgb(0 0 0 / .4);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--ground);width:100%;max-width:640px;max-height:86%;overflow:auto;border-radius:var(--radius-card) var(--radius-card) 0 0;box-shadow:0 -8px 24px rgb(0 0 0 / .18); /* taste-skill-ignore: the sheet floats over the page */
+  padding:8px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:grid;gap:12px;animation:up .18s ease-out}
+.sheet .grab{width:36px;height:4px;border-radius:2px;background:var(--control);justify-self:center;margin:4px 0}
+.sheet-head{display:flex;align-items:center;gap:10px}
+.sheet-head h2{flex:1;font-size:20px}
+@keyframes up{from{transform:translateY(24px)}}
+
+/* settings */
+.setting{padding:14px 16px;display:grid;gap:10px}
+.setting + .setting{border-top:1px solid var(--rule)}
+.setting .lbl{font-weight:500;font-size:14px}
+.setting p{margin:0;font-size:14px;color:var(--muted)}
+.prog .row{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px;padding:12px 16px}
+.prog .row + .row{border-top:1px solid var(--rule)}
+.prog .row .bar{grid-column:span 2}
+.prog small{color:var(--muted);font-size:12px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:500;font-size:14px}
+.toggle input{width:44px;height:26px;appearance:none;border-radius:999px;background:var(--control);position:relative;cursor:pointer;flex:none;transition:background .2s;margin:0}
+.toggle input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--surface);transition:left .2s}
+.toggle input:checked{background:var(--primary)}
+.toggle input:checked::after{left:21px;background:var(--on-primary)}
+.danger{color:var(--negative)}
+.backup{display:grid;gap:8px}
+.backup .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.backup textarea{width:100%;min-height:88px;border-radius:var(--radius-control);border:1px solid var(--control);background:var(--surface);color:var(--text);
+  font:inherit;font-size:14px;padding:8px 10px;resize:vertical}
+.backup textarea::placeholder{color:var(--faint)}
+.foot{font-size:12px;color:var(--muted);margin-top:24px;line-height:1.6}
+.foot a{color:inherit}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="app">
+  <header class="top"><div class="wrap" id="head"></div></header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs" aria-label="Bereiche"><div class="in">
+    <button data-tab="home"><span class="pip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="16" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v14"/></svg></span>Üben</button>
+    <button data-tab="help"><span class="pip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6M9 12h4"/></svg></span>Grammatik</button>
+    <button data-tab="stats"><span class="pip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Fortschritt</button>
+  </div></nav>
+</div>
+<div id="sheet"></div>
+
+<script src="data.js"></script>
+<script>
+"use strict";
+const D = window.DATA;
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = (a, n) => shuffle(a).slice(0, n);
+const uniq = a => [...new Set(a)];
+const ICON = {
+  speak: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  bulb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  check: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+  cross: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+};
+
+/* ---------------- storage (per-device) ---------------- */
+const KEY = "lernkartei.v1";
+let S = { cards: {}, settings: { level: "A1+A2", size: 15, autoSpeak: false, dir: "de-en" }, days: {}, total: 0, right: 0 };
+try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); S = { ...S, ...o, settings: { ...S.settings, ...(o.settings || {}) } }; } } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+// ask the browser not to evict our storage (installed apps usually get this granted)
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+
+/* backup code: "LK1:" + base64 of the progress JSON (UTF-8 safe) */
+const B_PREFIX = "LK1:";
+function exportCode() {
+  const { cards, days, total, right, settings, last } = S;
+  const bytes = new TextEncoder().encode(JSON.stringify({ cards, days, total, right, settings, last }));
+  let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return B_PREFIX + btoa(bin);
+}
+function importCode(code) {
+  code = code.trim().replace(/\s+/g, "");
+  if (!code.startsWith(B_PREFIX)) throw new Error("Der Code muss mit „LK1:“ beginnen.");
+  const bin = atob(code.slice(B_PREFIX.length));
+  const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))));
+  if (!o || typeof o.cards !== "object" || typeof o.total !== "number") throw new Error("Der Code ist unvollständig.");
+  S = { ...S, ...o, settings: { ...S.settings, ...(o.settings || {}) } };
+  save();
+}
+const today = () => new Date().toISOString().slice(0, 10);
+function streak() {
+  let n = 0, d = new Date();
+  if (!S.days[today()]) d.setDate(d.getDate() - 1);
+  while (S.days[d.toISOString().slice(0, 10)]) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function record(id, ok) {
+  const c = S.cards[id] || { b: 0, s: 0, c: 0, t: 0 };
+  c.s++; c.t = Date.now();
+  if (ok) { c.c++; c.b = Math.min(5, c.b + 1); } else c.b = 0;
+  S.cards[id] = c; S.total++; if (ok) S.right++;
+  S.days[today()] = (S.days[today()] || 0) + 1;
+  save();
+}
+const box = id => (S.cards[id] || {}).b || 0;
+// Leitner-style pick: low boxes first, long-unseen next, a little randomness; at most ~60% brand-new cards.
+const INTERVAL = [0, 10 * 60e3, 864e5, 3 * 864e5, 7 * 864e5, 21 * 864e5];
+function choose(pool, n) {
+  const now = Date.now(), seen = [], fresh = [];
+  for (const it of pool) (S.cards[it.id] ? seen : fresh).push(it);
+  const due = seen.map(it => { const c = S.cards[it.id]; return { it, score: c.b - (now - c.t) / (INTERVAL[c.b] || 1) + Math.random() * 1.5 }; })
+    .sort((a, b) => a.score - b.score).map(x => x.it);
+  const nFresh = Math.min(fresh.length, Math.max(n - due.length, Math.ceil(n * .6)));
+  return shuffle([...shuffle(fresh).slice(0, nFresh), ...due.slice(0, n - nFresh)]).slice(0, n);
+}
+const lvlOk = l => S.settings.level === "A1+A2" || l === S.settings.level || (S.settings.level === "A2" && !l);
+
+/* ---------------- speech ---------------- */
+let deVoice = null;
+function loadVoice() { try { deVoice = speechSynthesis.getVoices().find(v => /^de(-|_|$)/i.test(v.lang)) || null; } catch (e) {} }
+if ("speechSynthesis" in window) { loadVoice(); speechSynthesis.onvoiceschanged = loadVoice; }
+function say(t) {
+  if (!("speechSynthesis" in window) || !t) return;
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t.replace(/[_…]+/g, " ")); u.lang = "de-DE"; if (deVoice) u.voice = deVoice; u.rate = .92; speechSynthesis.speak(u); } catch (e) {}
+}
+
+/* ---------------- grammar helpers ---------------- */
+const NOUN = Object.fromEntries(D.nouns.map(n => [n.w, n]));
+function umlaut(w) {
+  if (/[éèàâç]/.test(w)) return null; // loanwords (Café) never take an umlaut
+  // skip the u of eu/au-like digraphs except au itself (Haus → Häuser, but never "Eüro")
+  const m = [...w.matchAll(/au|Au|[aouAOU]/g)].filter(x => x[0].length === 2 || !/[eEaAoOiI]/.test(w[x.index - 1] || "")).pop(); if (!m) return null;
+  const map = { a: "ä", o: "ö", u: "ü", A: "Ä", O: "Ö", U: "Ü", au: "äu", Au: "Äu" };
+  return w.slice(0, m.index) + map[m[0]] + w.slice(m.index + m[0].length);
+}
+const GENDER_RULES = [
+  [/(chen|lein)$/, "das", "Endung <mark>-chen / -lein</mark> (Verkleinerung) → immer <b>das</b>."],
+  [/(ung|heit|keit|schaft|ion|tät|ik|ur|ei|enz|anz)$/, "die", "Endung <mark>-ung, -heit, -keit, -schaft, -ion, -tät, -ik, -ur, -ei</mark> → fast immer <b>die</b>."],
+  [/(ling|ismus|or|ig|ist|ant|eur|ent)$/, "der", "Endung <mark>-ling, -ismus, -or, -ig, -ist, -ant, -ent</mark> → meistens <b>der</b>."],
+  [/(ment|um|nis|ma|o)$/, "das", "Endung <mark>-ment, -um, -nis, -ma, -o</mark> → meistens <b>das</b> (Ausnahmen: die Erlaubnis, der Euro)."],
+  [/ie$/, "die", "Endung <mark>-ie</mark> → meistens <b>die</b> (die Familie, die Biologie)."],
+  [/in$/, "die", "Weibliche Personen auf <mark>-in</mark> → <b>die</b> (die Lehrerin). Andere Wörter auf -in sind oft der/das."],
+  [/e$/, "die", "Endung <mark>-e</mark> → ca. 90 % <b>die</b>. Ausnahmen: männliche Personen/Tiere (der Junge, der Kollege), das Auge, das Ende."],
+  [/er$/, "der", "Endung <mark>-er</mark> → oft <b>der</b>, besonders Personen und Geräte (der Lehrer, der Computer). Aber: das Fenster, die Butter."],
+];
+function compoundOf(w) {
+  for (let i = 1; i < w.length - 2; i++) {
+    const tail = w.slice(i); const cap = tail[0].toUpperCase() + tail.slice(1);
+    if (NOUN[cap] && cap !== w) return NOUN[cap];
+  }
+  return null;
+}
+function genderHint(n) {
+  const out = [];
+  const comp = compoundOf(n.w);
+  if (comp) out.push(`Zusammengesetztes Wort: das <b>letzte</b> Wort bestimmt den Artikel → <span class="art ${comp.a}">${comp.a}</span> ${esc(comp.w)}.`);
+  const r = GENDER_RULES.find(([re]) => re.test(n.w));
+  if (r) out.push(r[2]);
+  if (!out.length) out.push("Keine sichere Endungsregel. Lerne das Wort immer <b>mit Artikel</b> – und sag es laut. Farb-Trick: der = blau, die = rot, das = grün.");
+  return out;
+}
+function genderAfter(n) {
+  const r = GENDER_RULES.find(([re]) => re.test(n.w));
+  if (!r) return "";
+  return r[1] === n.a ? `Regel passt: ${r[2]}` : `Achtung, Ausnahme! Die Regel sagt ${r[1]}, aber es heißt <b>${n.a} ${esc(n.w)}</b>.`;
+}
+function pluralHint(n) {
+  const w = n.w;
+  if (/(chen|lein)$/.test(w)) return "-chen / -lein: Plural = Singular (das Mädchen → die Mädchen).";
+  if (/(ung|heit|keit|schaft|ion|tät)$/.test(w)) return "-ung, -heit, -keit, -schaft, -ion, -tät → Plural immer <b>-en</b>.";
+  if (/in$/.test(w) && n.a === "die") return "Weibliche Personen auf -in → <b>-innen</b> (die Lehrerin → die Lehrerinnen).";
+  if (/[aiouy]$/.test(w) && !/e$/.test(w)) return "Endung auf Vokal (a, i, o, u, y) oder Fremdwort → oft <b>-s</b> (das Auto → die Autos).";
+  if (n.a === "die" && /e$/.test(w)) return "Feminin auf -e → fast immer <b>-n</b> (die Lampe → die Lampen).";
+  if (n.a === "die") return "Feminin → meistens <b>-en / -n</b>. Einige einsilbige mit Umlaut + e (die Stadt → die Städte).";
+  if (/(er|el|en)$/.test(w) && n.a !== "die") return "Maskulin/Neutrum auf -er, -el, -en → Plural <b>ohne Endung</b>, manchmal mit Umlaut (der Vater → die Väter).";
+  if (n.a === "das") return "Neutrum, einsilbig → oft <b>-er</b> + Umlaut (das Haus → die Häuser) oder <b>-e</b> (das Jahr → die Jahre).";
+  if (/e$/.test(w)) return "Maskulin auf -e (Personen) → <b>-n</b> (der Kollege → die Kollegen).";
+  return "Maskulin → meistens <b>-e</b>, oft mit Umlaut (der Tisch → die Tische, der Stuhl → die Stühle).";
+}
+function pluralOptions(n) {
+  const w = n.w, u = umlaut(w), c = [];
+  const add = x => x && x !== n.p && !c.includes(x) && c.push(x);
+  if (/e$/.test(w)) { add(w + "n"); add(w + "s"); add(w); if (u) add(u + "n"); }
+  else if (/(er|el|en)$/.test(w)) { add(w); add(w + "n"); add(w + "s"); if (u) add(u); }
+  else { add(w + "e"); add(w + "en"); add(w + "er"); add(w + "s"); if (u) { add(u + "e"); add(u + "er"); } add(w); }
+  if (/in$/.test(w)) { add(w + "nen"); add(w + "en"); }
+  return [n.p, ...pick(c.filter(x => x !== n.p), 3)];
+}
+function verbParts(v) {
+  const inf = v.i.replace(/^sich /, "");
+  const er = v.er.split(" ").filter(x => x !== "sich");
+  const pre = er.length > 1 ? er[er.length - 1] : "";
+  const base = pre && inf.startsWith(pre) ? inf.slice(pre.length) : inf;
+  const stem = /(eln|ern)$/.test(base) ? base.slice(0, -1) : base.replace(/e?n$/, "");
+  return { inf, pre, base, stem, refl: v.i.startsWith("sich ") };
+}
+function withSep(form, p) { // re-attach "sich"/prefix to a one-word form
+  return form + (p.refl ? " sich" : "") + (p.pre ? " " + p.pre : "");
+}
+function verbOptions(v, field) {
+  const p = verbParts(v), s = p.stem, c = [];
+  const right = v[field];
+  const add = x => x && x !== right && !c.includes(x) && c.push(x);
+  if (field === "er") {
+    add(withSep(s + "t", p)); add(withSep(s + "et", p)); add(withSep(s + "e", p));
+    const ei = s.replace(/([^aeiouäöüi])e([^aeiouäöü]+)$/, "$1i$2"); // sprech → sprich, but not flieg → fliig
+    if (ei !== s) add(withSep(ei + "t", p));
+    const u = umlaut(s); if (u && u !== s) add(withSep(u + "t", p));
+    add(withSep(s + "st", p));
+  } else if (field === "prt") {
+    const first = right.split(" ")[0];
+    add(withSep(s + "te", p)); add(withSep(s + "ete", p));
+    if (!/e$/.test(first)) { add(withSep(first + "e", p)); add(withSep(first + "te", p)); }
+    add(v.er);
+  } else {
+    const [aux, ...rest] = right.split(" "); const part = rest.join(" ");
+    const other = aux === "hat" ? "ist" : "hat";
+    add(other + " " + part);
+    const pr = (p.refl ? "sich " : "");
+    const ge = /^(be|emp|ent|er|ge|miss|ver|zer)/.test(p.base) || p.base.endsWith("ieren") ? "" : "ge";
+    add(`${aux} ${pr}${p.pre}${ge}${s}t`); add(`${aux} ${pr}${p.pre}${ge}${s}en`);
+    if (!ge) add(`${aux} ${pr}${p.pre}ge${s}t`);
+    add(`${other} ${pr}${p.pre}${ge}${s}t`);
+  }
+  return [right, ...pick(c, 3)];
+}
+const KIND = {
+  stark: "<b>Starkes (unregelmäßiges) Verb</b>: der Vokal ändert sich oft (Präteritum ohne -te, Partizip auf <mark>-en</mark>: gefahren, gesehen).",
+  schwach: "<b>Regelmäßiges Verb</b>: Präteritum <mark>Stamm + -te</mark> (machte), Partizip <mark>ge- … -t</mark> (gemacht). Bei -t/-d: -ete (arbeitete).",
+  gemischt: "<b>Gemischtes Verb</b>: Vokal ändert sich, aber Endung wie regelmäßig: denken → <mark>dachte</mark> → ge<mark>dacht</mark>.",
+  modal: "<b>Modalverb</b>: Singular ohne Endung bei ich/er (kann, muss), Präteritum ohne Umlaut (konnte, musste).",
+  trennbar: "<b>Trennbares Verb</b>: im Hauptsatz geht das Präfix ans Satzende (ich stehe … <mark>auf</mark>). Partizip: Präfix + <mark>ge</mark> + Verb (aufgestanden).",
+};
+const FIELD = { er: "er/sie/es · Präsens", prt: "er/sie/es · Präteritum", perf: "Perfekt (er/sie/es)" };
+function verbHint(v, field) {
+  const p = verbParts(v), h = [KIND[v.k] || ""];
+  if (field === "perf") h.push("Hilfsverb: <b>sein</b> bei Bewegung (gehen, fahren) und Zustandsänderung (aufstehen, werden) + sein/bleiben/passieren. Sonst <b>haben</b>.");
+  if (field === "perf" && (/^(be|emp|ent|er|ge|miss|ver|zer)/.test(p.base) || p.base.endsWith("ieren"))) h.push("be-, ver-, er-, ent-, … und -ieren: <b>kein ge-</b> im Partizip.");
+  if (field === "er" && v.k === "stark") h.push("Vokalwechsel nur bei du und er/sie/es: a → ä (fährt), e → i/ie (gibt, liest).");
+  return h;
+}
+
+/* ---------------- grammar quiz (authored from the lessons in this folder) ---------------- */
+// [topic, question, [correct, ...wrong], why]
+const GQ = [
+["kasus","Ich sehe ___ Mann.",["den","der","dem"],"<b>sehen</b> braucht den Akkusativ. Nur maskulin ändert sich: der → <b>den</b>."],
+["kasus","Ich gebe ___ Kind einen Apfel.",["dem","das","den"],"<b>geben</b>: Person im Dativ (wem?). das → <b>dem</b>."],
+["kasus","Das Buch gehört ___ Frau.",["der","die","den"],"<b>gehören</b> + Dativ: die → <b>der</b>."],
+["kasus","Wir haben ___ Hund.",["einen","ein","einem"],"<b>haben</b> + Akkusativ, maskulin: ein → <b>einen</b>."],
+["kasus","Ich helfe ___ Bruder.",["meinem","meinen","mein"],"<b>helfen</b> + Dativ: mein → <b>meinem</b>."],
+["kasus","Ich fahre mit ___ U-Bahn.",["der","die","dem"],"<b>mit</b> + Dativ. Feminin: die → <b>der</b>."],
+["kasus","Das ist ein Geschenk für ___ Vater.",["deinen","deinem","dein"],"<b>für</b> + Akkusativ. Maskulin: dein → <b>deinen</b>."],
+["kasus","Kannst du ___ Kindern helfen?",["den","die","der"],"Dativ Plural: <b>den</b> + Nomen mit -n (den Kindern)."],
+["kasus","Er schenkt ___ Freundin Blumen.",["seiner","seine","seinen"],"schenken: Person im Dativ. Feminin: seine → <b>seiner</b>."],
+["pronomen","Ich liebe ___. (du)",["dich","dir","du"],"<b>lieben</b> + Akkusativ: du → <b>dich</b>."],
+["pronomen","Kannst du ___ helfen? (ich)",["mir","mich","ich"],"<b>helfen</b> + Dativ: ich → <b>mir</b>."],
+["pronomen","Wie geht es ___? (Sie)",["Ihnen","Sie","Ihr"],"Wie geht es + Dativ: Sie → <b>Ihnen</b>."],
+["pronomen","Der Film gefällt ___. (wir)",["uns","wir","euch"],"<b>gefallen</b> + Dativ: wir → <b>uns</b>."],
+["pronomen","Ich rufe ___ morgen an. (er)",["ihn","ihm","er"],"<b>anrufen</b> + Akkusativ: er → <b>ihn</b>."],
+["pronomen","Ich gebe ___ das Buch. (sie, eine Frau)",["ihr","sie","ihnen"],"geben: Person im Dativ. sie (Sg.) → <b>ihr</b>."],
+["pronomen","Ich warte auf ___. (ihr)",["euch","ihr","euer"],"<b>auf</b> + Akkusativ: ihr → <b>euch</b>."],
+["possessiv","Das ist ___ Schwester. (ich)",["meine","mein","meinen"],"die Schwester (feminin) → <b>meine</b>."],
+["possessiv","Wo ist ___ Auto? (du)",["dein","deine","deinen"],"das Auto (neutral, Nominativ) → <b>dein</b>."],
+["possessiv","Ich besuche ___ Eltern. (wir)",["unsere","unser","unseren"],"Plural Akkusativ → <b>unsere</b>."],
+["possessiv","Habt ihr ___ Schlüssel? (ihr; der Schlüssel)",["euren","euer","eueren"],"euer verliert das e: euer → <b>euren</b> (Akk. mask.)."],
+["possessiv","Herr Schmidt, ist das ___ Tasche?",["Ihre","Ihr","Ihren"],"Höflich (Sie) → <b>Ihr</b>; die Tasche → <b>Ihre</b>."],
+["possessiv","Anna sucht ___ Handy.",["ihr","sein","ihre"],"Anna = sie → Possessiv <b>ihr</b>; das Handy → ihr."],
+["praesens","Du ___ sehr gut Deutsch. (sprechen)",["sprichst","sprechst","sprecht"],"e → i bei du/er: du <b>sprichst</b>."],
+["praesens","Er ___ jeden Tag Zeitung. (lesen)",["liest","lest","lieset"],"e → ie: er <b>liest</b>."],
+["praesens","Sie ___ morgen nach Berlin. (fahren, sie = Sg.)",["fährt","fahrt","fahret"],"a → ä bei du/er/sie/es: sie <b>fährt</b>."],
+["praesens","Ihr ___ zu viel. (arbeiten)",["arbeitet","arbeitt","arbeiten"],"Stamm auf -t → <b>-et</b>: ihr arbeitet."],
+["praesens","Wie ___ du? (heißen)",["heißt","heißst","heißest"],"Stamm auf -ß/-s/-z: du + nur <b>-t</b> → du heißt."],
+["praesens","Was ___ du gern? (essen)",["isst","esst","issst"],"e → i: du <b>isst</b> (ss + t)."],
+["praesens","___ du mir bitte das Salz? (geben)",["Gibst","Gebst","Gibt"],"e → i: du <b>gibst</b>."],
+["modal","Ich ___ heute nicht kommen. Ich bin krank.",["kann","könne","können"],"können: ich <b>kann</b> (ich/er ohne Endung)."],
+["modal","Hier ___ man nicht rauchen.",["darf","dürft","dürfen"],"Verbot = <b>nicht dürfen</b>. man → 3. Person: man darf."],
+["modal","Der Arzt sagt, du ___ mehr Wasser trinken.",["sollst","sollt","solle"],"Rat/Auftrag einer anderen Person → <b>sollen</b>: du sollst."],
+["modal","Wir ___ morgen früh aufstehen.",["müssen","muss","müsst"],"wir → <b>müssen</b>."],
+["modal","Ich ___ einen Kaffee, bitte.",["möchte","möchtet","mögt"],"Höflicher Wunsch: ich <b>möchte</b>."],
+["modal","Er will heute ins Kino ___.",["gehen","geht","zu gehen"],"Modalverb + <b>Infinitiv am Ende</b>, ohne zu."],
+["modal","___ du Schokolade?",["Magst","Möchtest gern","Mögst"],"mögen: du <b>magst</b>."],
+["trennbar","Ich ___ jeden Tag um 7 Uhr ___. (aufstehen)",["stehe … auf","aufstehe …","stehe … aufstehen"],"Trennbar: Verb auf Position 2, Präfix ans Ende: ich <b>stehe</b> … <b>auf</b>."],
+["trennbar","Wann ___ der Zug ___? (ankommen)",["kommt … an","ankommt …","kommt … ankommen"],"Frage: Verb vorne, Präfix am Ende: <b>kommt</b> … <b>an</b>."],
+["trennbar","Ich muss meine Mutter ___. (anrufen)",["anrufen","rufe an","an rufen"],"Mit Modalverb steht das trennbare Verb <b>zusammen am Ende</b>."],
+["trennbar","…, weil ich jeden Tag früh ___.",["aufstehe","stehe auf","auf stehe"],"Im Nebensatz steht das Verb zusammen am Ende: weil ich früh <b>aufstehe</b>."],
+["trennbar","Ich habe dich gestern ___. (anrufen)",["angerufen","geanrufen","anrufen"],"Partizip: Präfix + <b>ge</b> + Stamm: an-ge-rufen."],
+["trennbar","Kannst du bitte das Fenster ___? (zumachen)",["zumachen","machen zu","zu machen"],"Nach können: Infinitiv zusammen am Ende → <b>zumachen</b>."],
+["perfekt","Wir ___ gestern ins Kino gegangen.",["sind","haben","werden"],"Bewegung von A nach B (gehen) → <b>sein</b>."],
+["perfekt","Ich ___ einen Kuchen gebacken.",["habe","bin","hat"],"Keine Bewegung, mit Akkusativobjekt → <b>haben</b>."],
+["perfekt","Er ___ um 6 Uhr aufgestanden.",["ist","hat","war"],"Zustandsänderung (aufstehen) → <b>sein</b>."],
+["perfekt","Was ___ passiert?",["ist","hat","wird"],"passieren → immer <b>sein</b>."],
+["perfekt","Ich bin zu Hause ___. (bleiben)",["geblieben","gebleibt","bleibt"],"bleiben ist stark: <b>geblieben</b> (mit sein!)."],
+["perfekt","Hast du das Buch schon ___? (lesen)",["gelesen","gelest","gelast"],"Starkes Verb: Partizip auf <b>-en</b>: gelesen."],
+["perfekt","Sie hat Medizin ___. (studieren)",["studiert","gestudiert","studieren"],"Verben auf <b>-ieren</b> bekommen kein ge-."],
+["perfekt","Ich habe die Rechnung ___. (bezahlen)",["bezahlt","gebezahlt","bezahlen"],"Untrennbares Präfix <b>be-</b> → kein ge-."],
+["perfekt","Wir haben viel ___. (lachen)",["gelacht","gelachen","lachten"],"Regelmäßig: <b>ge- … -t</b>."],
+["perfekt","Er hat mir Blumen ___. (bringen)",["gebracht","gebringt","gebrungen"],"Gemischtes Verb: bringen – brachte – <b>gebracht</b>."],
+["perfekt","Der Zug ___ pünktlich abgefahren.",["ist","hat","wird"],"abfahren = Bewegung → <b>sein</b>."],
+["praeteritum","Gestern ___ ich krank.",["war","bin","wurde"],"sein im Präteritum: ich <b>war</b>."],
+["praeteritum","Als Kind ___ ich einen Hund.",["hatte","habte","hat"],"haben im Präteritum: ich <b>hatte</b>."],
+["praeteritum","Früher ___ ich nicht schwimmen.",["konnte","könnte","kann"],"Modalverb im Präteritum: <b>kein Umlaut</b> → konnte. (könnte = Konjunktiv II)"],
+["praeteritum","Letzte Woche ___ wir viel arbeiten.",["mussten","müssten","musstet"],"müssen → <b>mussten</b> (wir)."],
+["praeteritum","Er ___ zwei Jahre in Hamburg. (wohnen)",["wohnte","wohnt","wohnete"],"Regelmäßig: Stamm + <b>-te</b>."],
+["praeteritum","Sie ___ einen langen Brief. (schreiben)",["schrieb","schreibte","schrieben"],"ei – ie – ie: schreiben – <b>schrieb</b> – geschrieben."],
+["praeteritum","Ich ___ ihn zufällig im Supermarkt. (treffen)",["traf","treffte","trof"],"treffen – <b>traf</b> – getroffen."],
+["praeteritum","Wir ___ früh nach Hause. (gehen)",["gingen","gangen","gehten"],"gehen – <b>ging</b> – gegangen; wir gingen."],
+["praeteritum","Es ___ den ganzen Tag. (regnen)",["regnete","regnte","regnet"],"Stamm auf Konsonant + n → <b>-ete</b>: regnete."],
+["plusquam","Nachdem ich gegessen ___, ging ich spazieren.",["hatte","habe","war"],"Plusquamperfekt = <b>hatte/war</b> + Partizip. essen → haben → hatte."],
+["plusquam","Als wir ankamen, ___ der Film schon begonnen.",["hatte","war","hat"],"Vorvergangenheit: beginnen + haben → <b>hatte</b> begonnen."],
+["plusquam","Nachdem sie angekommen ___, rief sie mich an.",["war","hatte","ist"],"ankommen nimmt sein → <b>war</b> angekommen."],
+["plusquam","Ich war müde, weil ich schlecht geschlafen ___.",["hatte","war","habe"],"schlafen + haben → <b>hatte</b> geschlafen."],
+["konnektor","___ ich ein Kind war, wohnte ich auf dem Land.",["Als","Wenn","Wann"],"Einmal in der Vergangenheit → <b>als</b>."],
+["konnektor","___ ich Zeit habe, lese ich ein Buch.",["Wenn","Als","Wann"],"Gegenwart/immer wieder → <b>wenn</b>."],
+["konnektor","___ kommst du nach Hause?",["Wann","Wenn","Als"],"Frage nach der Zeit → <b>wann</b>."],
+["konnektor","Immer ___ es regnete, blieben wir zu Hause.",["wenn","als","wann"],"Wiederholt in der Vergangenheit → <b>wenn</b>."],
+["konnektor","___ er in Berlin wohnt, fährt er Fahrrad.",["Seitdem","Nachdem","Als"],"Seit einem Zeitpunkt bis heute → <b>seitdem</b>."],
+["konnektor","___ wir gegessen hatten, tranken wir Kaffee.",["Nachdem","Seitdem","Während"],"Erst A, dann B → <b>nachdem</b> (+ Plusquamperfekt)."],
+["konnektor","Er geht spazieren, ___ es regnet.",["obwohl","trotzdem","weil"],"Gegensatz im Nebensatz → <b>obwohl</b> (Verb am Ende)."],
+["konnektor","Es regnet. ___ geht er spazieren.",["Trotzdem","Obwohl","Deshalb"],"Hauptsatz-Konnektor (Verb direkt danach) → <b>trotzdem</b>."],
+["satzbau","Ich bleibe heute zu Hause, ___.",["weil ich krank bin","weil ich bin krank","weil bin ich krank"],"<b>weil</b> = Nebensatz → Verb ans Ende."],
+["satzbau","Ich bin krank, ___ zu Hause.",["deshalb bleibe ich","deshalb ich bleibe","weil ich bleibe"],"<b>deshalb</b> zählt als Position 1 → Verb direkt danach."],
+["satzbau","Ich weiß, ___.",["dass du recht hast","dass du hast recht","dass hast du recht"],"<b>dass</b>-Satz → Verb am Ende."],
+["satzbau","Wenn ich Zeit habe, ___.",["rufe ich dich an","ich rufe dich an","ich dich anrufe"],"Nebensatz zuerst → dann sofort das Verb: Verb, Verb."],
+["satzbau","Heute ___ ins Kino.",["gehe ich","ich gehe","gehe"],"Hauptsatz: Verb auf <b>Position 2</b> (Zeitangabe zuerst → Subjekt nach dem Verb)."],
+["satzbau","Weißt du, ___ der Bus kommt?",["wann","wenn","als"],"Indirekte W-Frage: W-Wort bleibt, Verb ans Ende."],
+["satzbau","Ich frage mich, ___ er heute kommt.",["ob","dass","wenn"],"Indirekte Ja/Nein-Frage → <b>ob</b>."],
+["satzbau","Ich fahre ___ nach Berlin.",["morgen mit dem Zug","mit dem Zug morgen","nach morgen dem Zug"],"Mittelfeld: <b>te-ka-mo-lo</b> (temporal – kausal – modal – lokal)."],
+["praep","Ich fahre morgen ___ Berlin.",["nach","zu","in"],"Städte und Länder ohne Artikel → <b>nach</b>."],
+["praep","Wir fahren ___ meinem Bruder.",["zu","nach","in"],"Zu Personen → <b>zu</b> + Dativ."],
+["praep","Er kommt ___ der Türkei.",["aus","von","nach"],"Herkunft Land/Stadt → <b>aus</b>."],
+["praep","Ich komme gerade ___ Arzt.",["vom","aus dem","zum"],"Von einer Person zurück → <b>von</b> + Dativ: von dem = vom."],
+["praep","Ohne ___ Hilfe schaffe ich das nicht.",["deine","deiner","deinem"],"<b>ohne</b> + Akkusativ (durch, für, gegen, ohne, um)."],
+["praep","Seit ___ Jahr lerne ich Deutsch.",["einem","ein","einen"],"<b>seit</b> + Dativ."],
+["praep","Ich wohne noch ___ meinen Eltern.",["bei","mit","zu"],"Ort bei Personen → <b>bei</b> + Dativ."],
+["praep","Wir fahren im Sommer ___ Schweiz.",["in die","nach","zu"],"Länder <b>mit Artikel</b> → in + Akk.: in die Schweiz, in die Türkei."],
+["praep","Außer ___ war niemand da. (ich)",["mir","mich","ich"],"<b>außer</b> + Dativ."],
+["praep","Ich gehe jetzt ___ Hause.",["nach","zu","in"],"Richtung: <b>nach Hause</b>. Ort: zu Hause."],
+["praep","Ich bin heute den ganzen Tag ___ Hause.",["zu","nach","in"],"Ort: <b>zu Hause</b>."],
+["praep","Wir gehen ___ den Park spazieren.",["durch","mit","aus"],"<b>durch</b> + Akkusativ."],
+["praep","Ich gehe ___ Bäcker.",["zum","nach","beim"],"Zu einem Geschäft/einer Person → <b>zum</b> (zu dem)."],
+["wechsel","Ich lege das Buch auf ___ Tisch.",["den","dem","der"],"<b>Wohin?</b> (Bewegung, legen) → Akkusativ."],
+["wechsel","Das Buch liegt auf ___ Tisch.",["dem","den","der"],"<b>Wo?</b> (Position, liegen) → Dativ."],
+["wechsel","Ich hänge das Bild an ___ Wand.",["die","der","den"],"hängen (Handlung) → Wohin? → Akk.: <b>die</b> Wand."],
+["wechsel","Das Bild hängt an ___ Wand.",["der","die","dem"],"hängt (Zustand) → Wo? → Dativ: die → <b>der</b>."],
+["wechsel","Die Katze schläft unter ___ Bett.",["dem","das","den"],"Wo? → Dativ: das → <b>dem</b>."],
+["wechsel","Ich stelle die Milch in ___ Kühlschrank.",["den","dem","der"],"stellen → Wohin? → Akk.: <b>den</b> Kühlschrank."],
+["wechsel","Wir sitzen ___ Garten.",["im","in den","ins"],"Wo? → Dativ: in dem = <b>im</b>."],
+["wechsel","Gehen wir heute Abend ___ Kino?",["ins","im","in dem"],"Wohin? → Akk.: in das = <b>ins</b>."],
+["wechsel","Das Auto steht zwischen ___ Häusern.",["den","die","der"],"Wo? → Dativ Plural: <b>den</b> Häusern."],
+["wechsel","Setz dich neben ___! (ich)",["mich","mir","ich"],"sich setzen = Bewegung → Akk.: <b>mich</b>."],
+["zeit","Der Kurs beginnt ___ 9 Uhr.",["um","am","im"],"Uhrzeit → <b>um</b>."],
+["zeit","Wir treffen uns ___ Montag.",["am","um","im"],"Tage, Tageszeiten, Datum → <b>am</b>."],
+["zeit","___ Sommer fahren wir ans Meer.",["Im","Am","Um"],"Jahreszeiten und Monate → <b>im</b>."],
+["zeit","___ Wochenende schlafe ich lange.",["Am","Im","Um"],"<b>am</b> Wochenende."],
+["zeit","___ Juli habe ich Urlaub.",["Im","Am","Um"],"Monate → <b>im</b>."],
+["zeit","Ich habe ___ 6. Mai Geburtstag.",["am","im","um"],"Datum → <b>am</b>."],
+["zeit","___ Abend mache ich Yoga.",["Am","Im","Um"],"Tageszeit → <b>am</b> Abend (aber: in der Nacht)."],
+["zeit","Ich lerne ___ drei Monaten Deutsch.",["seit","vor","für"],"Begann in der Vergangenheit, dauert noch → <b>seit</b> + Dativ."],
+["zeit","Ich war ___ zwei Jahren in Wien.",["vor","seit","nach"],"Zeitpunkt in der Vergangenheit → <b>vor</b> + Dativ."],
+["zeit","Der Laden ist ___ 8 ___ 20 Uhr geöffnet.",["von … bis","ab … bis zu","seit … bis"],"Zeitraum: <b>von … bis</b>."],
+["genitiv","Wegen ___ Regens bleiben wir zu Hause.",["des","dem","der"],"<b>wegen</b> + Genitiv: der Regen → des Regens."],
+["genitiv","Trotz ___ Kälte gehen wir spazieren.",["der","die","dem"],"<b>trotz</b> + Genitiv: die Kälte → der Kälte."],
+["genitiv","Während ___ Films hat er geschlafen.",["des","dem","den"],"<b>während</b> + Genitiv: der Film → des Films."],
+["genitiv","Das ist das Auto ___ Lehrers.",["des","dem","der"],"Besitz → Genitiv, maskulin: <b>des</b> + -s."],
+["adjektiv","Ich habe einen ___ Hund.",["kleinen","kleiner","kleines"],"Akkusativ maskulin → immer <b>-en</b>."],
+["adjektiv","Das ist ein ___ Haus.",["schönes","schöne","schöner"],"ein + neutral (ohne Endung) → Adjektiv zeigt das Genus: <b>-es</b>."],
+["adjektiv","Der ___ Mann heißt Peter.",["alte","alter","alten"],"Nach der/die/das (Nominativ Sg.) → <b>-e</b>."],
+["adjektiv","Wir fahren mit dem ___ Auto.",["neuen","neue","neuem"],"Dativ → immer <b>-en</b> nach Artikel."],
+["adjektiv","Ich trinke gern ___ Kaffee.",["schwarzen","schwarzer","schwarze"],"Ohne Artikel, Akk. mask. → Adjektiv übernimmt die Artikelendung: (den) → <b>-en</b>."],
+["adjektiv","Sie trägt eine ___ Jacke.",["rote","roten","roter"],"eine + feminin Akk. → <b>-e</b>."],
+["adjektiv","Die ___ Kinder spielen im Garten.",["kleinen","kleine","kleiner"],"Plural nach die → <b>-en</b>."],
+["adjektiv","Er wohnt in einer ___ Stadt.",["großen","große","großer"],"Dativ → <b>-en</b>."],
+["adjektiv","Ich möchte ein ___ Wasser.",["kaltes","kalte","kalten"],"ein + neutral (Akk.) → <b>-es</b>."],
+["adjektiv","Das ist ein ___ Film.",["guter","gute","guten"],"ein + maskulin Nominativ → <b>-er</b>."],
+["komparativ","Mein Bruder ist ___ als ich.",["älter","alter","mehr alt"],"Kurze Adjektive: Komparativ mit Umlaut: alt → <b>älter</b>."],
+["komparativ","Im Sommer ist es ___ als im Winter.",["wärmer","warmer","mehr warm"],"warm → <b>wärmer</b> + als."],
+["komparativ","Ich trinke ___ Tee als Kaffee.",["lieber","gerner","mehr gern"],"gern – <b>lieber</b> – am liebsten."],
+["komparativ","Das ist das ___ Restaurant der Stadt.",["beste","guteste","besser"],"gut – besser – <b>am besten / der/die/das beste</b>."],
+["komparativ","Sie ist so groß ___ ihre Mutter.",["wie","als","dann"],"Gleich: <b>so … wie</b>. Ungleich: Komparativ + als."],
+["komparativ","Er läuft am ___.",["schnellsten","schnellste","schneller"],"Superlativ: <b>am … -sten</b>."],
+["komparativ","Der Berg ist ___ als der Hügel.",["höher","hocher","hoher"],"hoch – <b>höher</b> – am höchsten."],
+["komparativ","Ich esse ___ Obst als Fleisch.",["mehr","vieler","mehrer"],"viel – <b>mehr</b> – am meisten."],
+["reflexiv","Ich freue ___ auf das Wochenende.",["mich","mir","sich"],"sich freuen: ich → <b>mich</b>."],
+["reflexiv","Wir treffen ___ um acht.",["uns","euch","sich"],"wir → <b>uns</b>."],
+["reflexiv","Ich putze ___ die Zähne.",["mir","mich","sich"],"Es gibt schon ein Akkusativobjekt (die Zähne) → Reflexivpronomen im <b>Dativ</b>."],
+["reflexiv","Interessierst du ___ für Musik?",["dich","dir","sich"],"du → <b>dich</b>."],
+["reflexiv","Er hat ___ beim Sport verletzt.",["sich","ihn","ihm"],"er/sie/es/Sie → <b>sich</b>."],
+["imperativ","___ bitte langsamer! (sprechen, du)",["Sprich","Sprech","Sprichst"],"du-Imperativ: e → i bleibt, kein -st: <b>Sprich!</b>"],
+["imperativ","___ bitte die Tür zu! (machen, ihr)",["Macht","Machen","Mach"],"ihr-Imperativ = ihr-Form ohne ihr: <b>Macht!</b>"],
+["imperativ","___ Sie bitte Platz! (nehmen)",["Nehmen","Nimm","Nehmt"],"Sie-Imperativ: Infinitiv + Sie: <b>Nehmen Sie</b>."],
+["imperativ","___ doch ruhig! (sein, du)",["Sei","Bist","Seid"],"sein: <b>Sei!</b> (ihr: Seid!)"],
+["imperativ","___ nicht so schnell! (fahren, du)",["Fahr","Fähr","Fährst"],"a → ä fällt im Imperativ weg: <b>Fahr!</b>"],
+["konjunktiv","___ Sie mir bitte helfen?",["Könnten","Konnten","Können würden"],"Höfliche Bitte: <b>Könnten Sie …?</b>"],
+["konjunktiv","Ich ___ gern einen Tee.",["hätte","hatte","habe würde"],"Im Café: <b>Ich hätte gern …</b>"],
+["konjunktiv","Wenn ich Zeit ___, würde ich mitkommen.",["hätte","habe","hatte"],"Irreale Bedingung → Konjunktiv II: <b>hätte</b>."],
+["konjunktiv","Du ___ mehr schlafen.",["solltest","sollst würde","solltet"],"Ratschlag: <b>du solltest</b> + Infinitiv."],
+["konjunktiv","An deiner Stelle ___ ich zum Arzt gehen.",["würde","werde","wurde"],"Ratschlag: <b>Ich würde …</b>"],
+["konjunktiv","Wenn ich reich ___, würde ich um die Welt reisen.",["wäre","war","bin"],"sein → Konjunktiv II <b>wäre</b>."],
+["konjunktiv","___ Sie bitte das Fenster schließen?",["Würden","Werden","Wurden"],"Höflich: <b>Würden Sie …?</b>"],
+["passiv","Das Haus ___ 1990 gebaut.",["wurde","wird","hat"],"Passiv Präteritum: <b>wurde</b> + Partizip."],
+["passiv","In Österreich ___ Deutsch gesprochen.",["wird","ist","hat"],"Passiv Präsens: <b>werden</b> + Partizip II."],
+["passiv","Die Pakete werden morgen ___.",["geliefert","liefern","liefert"],"werden + <b>Partizip II</b> am Ende."],
+["passiv","Das Essen wird ___ dem Koch gekocht.",["von","durch","mit"],"Person im Passiv → <b>von</b> + Dativ."],
+["passiv","Die Kartoffeln ___ zuerst geschält.",["werden","wird","wurde"],"Plural → <b>werden</b>."],
+["passiv","Das Fenster ist geöffnet ___.",["worden","geworden","wird"],"Passiv Perfekt: ist + Partizip + <b>worden</b> (nicht geworden)."],
+["zuinf","Ich habe keine Lust, heute ___.",["zu kochen","kochen","kochen zu"],"Lust haben → Infinitiv <b>mit zu</b>."],
+["zuinf","Er hat vergessen, mich ___.",["anzurufen","zu anrufen","anrufen"],"Trennbar: zu steht <b>zwischen</b> Präfix und Verb: an<b>zu</b>rufen."],
+["zuinf","Ich kann gut ___.",["schwimmen","zu schwimmen","schwimme"],"Nach Modalverben: Infinitiv <b>ohne zu</b>."],
+["zuinf","Ich lerne Deutsch, ___ in Deutschland zu arbeiten.",["um","damit","für"],"Ziel, gleiche Person → <b>um … zu</b>."],
+["zuinf","Es ist wichtig, jeden Tag Deutsch ___.",["zu üben","üben","übt"],"Es ist wichtig/schön/schwer, … <b>zu</b> + Infinitiv."],
+["zuinf","Wir gehen heute Abend ___.",["schwimmen","zu schwimmen","schwimmend"],"gehen + Infinitiv <b>ohne zu</b> (Lektion 31)."],
+["zuinf","Ich höre die Kinder im Garten ___.",["lachen","zu lachen","lacht"],"Wahrnehmung (hören, sehen) + Infinitiv <b>ohne zu</b>."],
+["zuinf","Er versucht, pünktlich ___.",["zu sein","sein","ist"],"versuchen → <b>zu</b> + Infinitiv."],
+["zuinf","Lass uns ins Café ___!",["gehen","zu gehen","geht"],"lassen + Infinitiv <b>ohne zu</b>."],
+["vermutung","Er ist nicht gekommen. Er ___ krank sein.",["könnte","konnte","kann sein"],"Vermutung: <b>könnte</b> + Infinitiv."],
+["vermutung","Sie geht nicht ans Telefon. Sie wird ___ noch schlafen.",["wohl","gern","sehr"],"Vermutung: <b>werden + wohl</b> + Infinitiv."],
+["vermutung","Das Auto ist neu. Es ___ teuer gewesen sein.",["muss","musste","müsse"],"Fast sicher → <b>muss</b> + Infinitiv."],
+["adjnomen","Ich wünsche dir alles ___!",["Gute","gute","Guten"],"Nach alles: Adjektiv als Nomen, groß + <b>-e</b>: alles Gute."],
+["adjnomen","Gibt es etwas ___?",["Neues","neues","Neue"],"Nach etwas/nichts/viel: groß + <b>-es</b>."],
+["adjnomen","Mein Nachbar ist ___. (deutsch)",["Deutscher","deutsch","Deutsche"],"Nationalität als Nomen: der Deutsche, aber ein <b>Deutscher</b> / er ist Deutscher."],
+["adjnomen","Die ___ liegen im Krankenhaus. (krank)",["Kranken","Kranke","Krankes"],"Nach die (Plural) → <b>-en</b>: die Kranken."],
+["dakomp","___ wartest du? – Auf den Bus.",["Worauf","Auf was","Wofür"],"Sache + Präposition fragen: <b>wo(r)</b> + Präposition."],
+["dakomp","Freust du dich auf den Urlaub? – Ja, ich freue mich sehr ___.",["darauf","dafür","daran"],"Sache wiederholen: <b>da(r)</b> + Präposition: auf → darauf."],
+["dakomp","___ denkst du? – An meine Prüfung.",["Woran","Worauf","Wovon"],"denken <b>an</b> → woran."],
+["dakomp","Interessierst du dich für Fußball? – Nein, ___ interessiere ich mich nicht.",["dafür","darauf","damit"],"sich interessieren <b>für</b> → dafür."],
+["dakomp","___ träumst du? – Von einer Reise.",["Wovon","Worüber","Wofür"],"träumen <b>von</b> → wovon."],
+["dakomp","Wartest du auf Lisa? – Ja, ich warte auf ___.",["sie","darauf","ihr"],"Bei <b>Personen</b>: Präposition + Pronomen, kein da-Wort."],
+["relativ","Das ist der Mann, ___ in Berlin wohnt.",["der","den","dem"],"Subjekt im Relativsatz → Nominativ: <b>der</b>."],
+["relativ","Das ist die Frau, ___ ich gestern gesehen habe.",["die","der","den"],"sehen + Akk.; feminin → <b>die</b>."],
+["relativ","Das ist das Kind, ___ ich geholfen habe.",["dem","das","den"],"helfen + Dativ → <b>dem</b>."],
+["relativ","Das sind die Freunde, mit ___ ich Urlaub mache.",["denen","den","die"],"Dativ Plural Relativpronomen → <b>denen</b>."],
+["negation","Ich habe ___ Auto.",["kein","nicht","keinen"],"Nomen mit ein/ohne Artikel → <b>kein</b> (das Auto: kein)."],
+["negation","Ich komme heute ___.",["nicht","kein","keine"],"Verb verneinen → <b>nicht</b>."],
+["negation","Das ist ___ gute Idee.",["keine","nicht","kein"],"eine gute Idee → <b>keine</b> gute Idee."],
+["negation","Ich habe leider ___ Zeit.",["keine","nicht","keinen"],"Zeit (ohne Artikel, feminin) → <b>keine</b>."],
+["negation","Hast du keinen Hunger? – ___, ich habe großen Hunger!",["Doch","Ja","Nein"],"Positive Antwort auf eine negative Frage → <b>doch</b>."],
+["fragen","___ kommst du? – Aus Spanien.",["Woher","Wohin","Wo"],"Herkunft → <b>woher</b>."],
+["fragen","___ gehst du? – Ins Kino.",["Wohin","Woher","Wo"],"Richtung → <b>wohin</b>."],
+["fragen","___ kostet das? – 5 Euro.",["Wie viel","Wie viele","Was viel"],"Preis/Menge ohne Plural → <b>wie viel</b>."],
+["fragen","___ Geschwister hast du?",["Wie viele","Wie viel","Welche viel"],"Zählbar, Plural → <b>wie viele</b>."],
+["fragen","___ gehört das Buch? – Mir.",["Wem","Wen","Wer"],"Dativ-Frage → <b>wem</b>."],
+["fragen","___ hast du gestern gesehen? – Meinen Freund.",["Wen","Wem","Wer"],"Akkusativ-Frage → <b>wen</b>."],
+];
+
+/* ---------------- help topics ---------------- */
+const T = (rows, head) => `<div class="tscroll"><table>${head ? `<tr>${head.map(h => `<th>${h}</th>`).join("")}</tr>` : ""}${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</table></div>`;
+const HELP = [
+{id:"start",lvl:"",t:"So lernst du mit der Lernkartei",b:`
+<p>Jede Karte liegt in einem <b>Fach</b> von 0 bis 5 (Leitner-System). Richtig → ein Fach höher. Falsch → zurück in Fach 0 und die Karte kommt in derselben Runde noch einmal.</p>
+<ul><li>Karten in niedrigen Fächern kommen öfter. Ab Fach 3 gilt eine Karte als <b>sicher</b>.</li>
+<li>Steckst du fest? Tippe auf <b>Tipp</b> oben rechts: du bekommst einen Hinweis zur Karte und die passende Grammatikregel.</li>
+<li>Lautsprecher-Knopf: das Wort wird auf Deutsch vorgelesen.</li>
+<li>Bei Karteikarten: auf die Karte tippen zum Umdrehen, dann <b>Nochmal</b> oder <b>Gewusst</b>. Wischen geht auch (links = Nochmal, rechts = Gewusst).</li>
+<li>Tastatur: 1–4 wählt Antworten, Leertaste dreht um, Enter = weiter.</li></ul>
+<p>Dein Fortschritt wird nur auf diesem Gerät gespeichert.</p>`},
+{id:"artikel",lvl:"A1",t:"Artikel: der, die, das",b:`
+<p>Jedes Nomen hat ein Genus. Lerne Nomen <b>immer mit Artikel</b> – und mit Farbe: <span class="art der">der</span>, <span class="art die">die</span>, <span class="art das">das</span>.</p>
+${T([
+['<span class="art die">die</span>','-ung, -heit, -keit, -schaft, -ion, -tät, -ik, -ur, -ei, -ie; fast alle auf -e','die Zeitung, die Freiheit, die Musik'],
+['<span class="art der">der</span>','-ling, -ismus, -or, -ist, -ant; Tage, Monate, Jahreszeiten; männliche Personen','der Motor, der Montag, der Winter'],
+['<span class="art das">das</span>','-chen, -lein, -ment, -um, -nis, -o; Infinitive als Nomen','das Mädchen, das Zentrum, das Essen']],["Artikel","Typisch","Beispiel"])}
+<p><b>Komposita</b>: Das letzte Wort bestimmt den Artikel: der Kühl<b>schrank</b> (der Schrank), die Haus<b>tür</b> (die Tür).</p>
+<p><b>Plural</b>: immer <b>die</b>.</p>`},
+{id:"kasus",lvl:"A1",t:"Fälle: Nominativ, Akkusativ, Dativ",b:`
+<p><b>Nominativ</b> = Subjekt (wer?). <b>Akkusativ</b> = direktes Objekt (wen? was?). <b>Dativ</b> = Person, die etwas bekommt (wem?).</p>
+${T([
+['Nominativ','der / ein','die / eine','das / ein','die / –'],
+['Akkusativ','<mark>den / einen</mark>','die / eine','das / ein','die / –'],
+['Dativ','<mark>dem / einem</mark>','<mark>der / einer</mark>','<mark>dem / einem</mark>','<mark>den</mark> + -n']],["","mask.","fem.","neutr.","Plural"])}
+<p>Merksatz: Im Akkusativ ändert sich <b>nur maskulin</b>. Im Dativ ändert sich alles.</p>
+<p>Verben mit Dativ: helfen, danken, gefallen, gehören, antworten, gratulieren, schmecken, passen.</p>
+<div class="ex">Ich gebe <b>dem Mann</b> (Dat.) <b>den Schlüssel</b> (Akk.).</div>`},
+{id:"pronomen",lvl:"A1",t:"Personalpronomen",b:`
+${T([
+['Nom.','ich','du','er','sie','es','wir','ihr','sie/Sie'],
+['Akk.','mich','dich','ihn','sie','es','uns','euch','sie/Sie'],
+['Dat.','mir','dir','ihm','ihr','ihm','uns','euch','ihnen/Ihnen']])}
+<div class="ex">Kannst du <b>mir</b> helfen? (helfen + Dat.) · Ich sehe <b>dich</b>. (sehen + Akk.)</div>`},
+{id:"possessiv",lvl:"A1",t:"Possessivartikel (mein, dein …)",b:`
+<p>mein, dein, sein (er/es), ihr (sie), unser, euer, ihr (sie Pl.), Ihr (Sie). Die Endungen sind wie bei <b>ein / kein</b>.</p>
+${T([['Nom.','mein','meine','mein','meine'],['Akk.','meinen','meine','mein','meine'],['Dat.','meinem','meiner','meinem','meinen']],["","m.","f.","n.","Pl."])}
+<p>Achtung: euer → eu<b>re</b>, eu<b>ren</b> (das zweite e fällt weg).</p>`},
+{id:"praesens",lvl:"A1",t:"Präsens & Vokalwechsel",b:`
+${T([['ich','mache','fahre','gebe','arbeite'],['du','machst','<mark>fährst</mark>','<mark>gibst</mark>','arbeitest'],['er/sie/es','macht','<mark>fährt</mark>','<mark>gibt</mark>','arbeitet'],['wir','machen','fahren','geben','arbeiten'],['ihr','macht','fahrt','gebt','arbeitet'],['sie/Sie','machen','fahren','geben','arbeiten']],["","regelm.","a→ä","e→i","-t/-d"])}
+<p>Vokalwechsel nur bei <b>du</b> und <b>er/sie/es</b>: a → ä (fahren, schlafen, tragen), e → i (geben, helfen, sprechen, essen), e → ie (lesen, sehen).</p>
+<p>Stamm auf -s, -ß, -z: du heißt, du tanzt (nur -t).</p>`},
+{id:"sein",lvl:"A1",t:"sein, haben, werden",b:`
+${T([['ich','bin','habe','werde'],['du','bist','hast','wirst'],['er/sie/es','ist','hat','wird'],['wir','sind','haben','werden'],['ihr','seid','habt','werdet'],['sie/Sie','sind','haben','werden'],['Präteritum','war','hatte','wurde'],['Perfekt','ist gewesen','hat gehabt','ist geworden']],["","sein","haben","werden"])}
+<p><b>werden</b> hat drei Jobs: Vollverb (Er wird Arzt), Futur (Ich werde kommen), Passiv (Das Haus wird gebaut).</p>`},
+{id:"modal",lvl:"A1",t:"Modalverben",b:`
+${T([['ich / er','kann','muss','darf','soll','will','mag','möchte'],['du','kannst','musst','darfst','sollst','willst','magst','möchtest'],['wir / sie','können','müssen','dürfen','sollen','wollen','mögen','möchten'],['Präteritum','konnte','musste','durfte','sollte','wollte','mochte','wollte']],["","können","müssen","dürfen","sollen","wollen","mögen","möchten"])}
+<p><b>Satzklammer</b>: Modalverb auf Position 2, Infinitiv am Ende – ohne zu.</p>
+<div class="ex">Ich <b>muss</b> heute lange <b>arbeiten</b>.</div>
+<p>nicht müssen = nicht nötig · nicht dürfen = verboten.</p>`},
+{id:"trennbar",lvl:"A1",t:"Trennbare & untrennbare Verben",b:`
+<p><b>Trennbare Präfixe</b> (betont): ab-, an-, auf-, aus-, ein-, mit-, nach-, vor-, weg-, zu-, zurück-, fern-.</p>
+${T([['Hauptsatz','Ich <b>stehe</b> um 7 Uhr <b>auf</b>.'],['Modalverb','Ich muss um 7 Uhr <b>aufstehen</b>.'],['Nebensatz','…, weil ich um 7 Uhr <b>aufstehe</b>.'],['Perfekt','Ich bin um 7 Uhr auf<b>ge</b>standen.'],['zu-Infinitiv','Ich versuche, früh auf<b>zu</b>stehen.']])}
+<p><b>Untrennbare Präfixe</b>: be-, emp-, ent-, er-, ge-, miss-, ver-, zer- → nie trennen, <b>kein ge-</b>: bekommen → hat bekommen, verstehen → hat verstanden.</p>`},
+{id:"perfekt",lvl:"A1",t:"Perfekt: haben oder sein?",b:`
+<p>Perfekt = <b>haben/sein</b> (Position 2) + <b>Partizip II</b> (Ende). Im Alltag spricht man fast immer im Perfekt.</p>
+<p><b>sein</b>: Bewegung von A nach B (gehen, fahren, fliegen, kommen, laufen), Zustandsänderung (aufstehen, einschlafen, werden, sterben) und sein, bleiben, passieren. <b>haben</b>: alles andere.</p>
+${T([['regelmäßig','ge- … -t','machen → gemacht'],['unregelmäßig','ge- … -en','sehen → gesehen, finden → gefunden'],['gemischt','ge- … -t + Vokal','bringen → gebracht, denken → gedacht'],['trennbar','Präfix + ge + …','einkaufen → eingekauft'],['be-/ver-/-ieren','kein ge-','besuchen → besucht, studieren → studiert']],["Typ","Partizip","Beispiel"])}`},
+{id:"praeteritum",lvl:"A2",t:"Präteritum",b:`
+<p>Benutze das Präteritum vor allem bei <b>sein, haben</b> und den <b>Modalverben</b> – auch beim Sprechen. Andere Verben im Präteritum: in Geschichten, Berichten, Zeitungen.</p>
+${T([['ich','machte','arbeitete','fuhr','konnte'],['du','machtest','arbeitetest','fuhrst','konntest'],['er/sie/es','machte','arbeitete','fuhr','konnte'],['wir','machten','arbeiteten','fuhren','konnten'],['ihr','machtet','arbeitetet','fuhrt','konntet'],['sie/Sie','machten','arbeiteten','fuhren','konnten']],["","regelm.","-t/-d","stark","modal"])}
+<p>ich = er/sie/es (keine Endung bei starken Verben: ich fuhr, er fuhr). Modalverben verlieren den Umlaut: können → konnte.</p>
+<p>Starke Verben in Gruppen lernen: <b>ei–ie–ie</b> (bleiben, blieb, geblieben), <b>i–a–u</b> (finden, fand, gefunden), <b>e–a–o</b> (nehmen, nahm, genommen), <b>a–u–a</b> (fahren, fuhr, gefahren).</p>`},
+{id:"plusquam",lvl:"A2",t:"Plusquamperfekt",b:`
+<p>Was <b>vor</b> einer anderen Handlung in der Vergangenheit passiert ist: <b>hatte/war</b> + Partizip II.</p>
+<div class="ex">Nachdem ich gegessen <b>hatte</b>, ging ich spazieren. · Als ich ankam, <b>war</b> der Zug schon abgefahren.</div>
+<p>haben oder sein: genau wie im Perfekt.</p>`},
+{id:"konnektor",lvl:"A2",t:"als, wenn, wann, nachdem, seitdem",b:`
+${T([['als','einmal in der Vergangenheit','Als ich 10 war, …'],['wenn','Gegenwart/Zukunft, oder immer wieder','Wenn ich Zeit habe, …'],['wann','Frage nach der Zeit','Wann kommst du?'],['nachdem','erst A, dann B (Plusquamperfekt)','Nachdem er gegessen hatte, …'],['seitdem','seit einem Punkt bis heute','Seitdem ich hier wohne, …'],['während','gleichzeitig','Während ich koche, …'],['obwohl','Gegensatz (Nebensatz)','Obwohl es regnet, …'],['trotzdem','Gegensatz (Hauptsatz, Pos. 1)','Es regnet. Trotzdem gehe ich.']],["Wort","Wann?","Beispiel"])}`},
+{id:"satzbau",lvl:"A1",t:"Satzbau: Verb auf Position 2 / am Ende",b:`
+${T([['Aussage','Verb auf Position 2','Heute <b>gehe</b> ich ins Kino.'],['W-Frage','Verb auf Position 2','Wann <b>gehst</b> du?'],['Ja/Nein-Frage','Verb auf Position 1','<b>Gehst</b> du mit?'],['Nebensatz','Verb am Ende','…, weil ich keine Zeit <b>habe</b>.']],["Typ","Verb","Beispiel"])}
+<p><b>weil, dass, wenn, ob, als, obwohl, damit</b> → Verb ans Ende. <b>und, aber, oder, denn, sondern</b> → ändern nichts (Position 0). <b>deshalb, trotzdem, dann</b> → Position 1, Verb sofort danach.</p>
+<p>Nebensatz zuerst → Hauptsatz beginnt mit dem Verb: Wenn ich Zeit habe, <b>komme</b> ich.</p>
+<p>Mittelfeld: <b>te-ka-mo-lo</b> – wann, warum, wie, wo: Ich fahre morgen wegen der Arbeit mit dem Zug nach Berlin.</p>`},
+{id:"praep",lvl:"A1",t:"Präpositionen mit Akkusativ / Dativ",b:`
+${T([['Akkusativ','durch, für, gegen, ohne, um, bis'],['Dativ','aus, bei, mit, nach, seit, von, zu, außer, gegenüber, ab'],['Wechsel (Akk./Dat.)','an, auf, hinter, in, neben, über, unter, vor, zwischen'],['Genitiv','wegen, trotz, während, statt']],["Kasus","Präpositionen"])}
+<p><b>Wohin?</b> zu (Person, Geschäft): zum Arzt · nach (Stadt, Land ohne Artikel): nach Berlin · in (Land mit Artikel, Gebäude): in die Schweiz, ins Kino · nach Hause.</p>
+<p><b>Wo?</b> bei (Person): beim Arzt · in: in Berlin, im Kino · zu Hause. <b>Woher?</b> aus (Land, Stadt, Gebäude) · von (Person): vom Arzt.</p>
+<p>Kurzformen: am, im, vom, zum, beim (Dativ) · ans, ins (Akk.) · zur (zu der).</p>`},
+{id:"wechsel",lvl:"A2",t:"Wechselpräpositionen: Wo? oder Wohin?",b:`
+<p>an, auf, hinter, in, neben, über, unter, vor, zwischen: <b>Wohin? → Akkusativ</b> (Bewegung), <b>Wo? → Dativ</b> (Position).</p>
+${T([['stellen → Akk.','Ich stelle die Vase auf <b>den</b> Tisch.','stehen → Dat.','Die Vase steht auf <b>dem</b> Tisch.'],['legen → Akk.','Ich lege das Handy auf <b>das</b> Sofa.','liegen → Dat.','Es liegt auf <b>dem</b> Sofa.'],['setzen → Akk.','Ich setze mich auf <b>den</b> Stuhl.','sitzen → Dat.','Ich sitze auf <b>dem</b> Stuhl.'],['hängen → Akk.','Ich hänge das Bild an <b>die</b> Wand.','hängen → Dat.','Das Bild hängt an <b>der</b> Wand.']],["Wohin?","","Wo?",""])}`},
+{id:"zeit",lvl:"A1",t:"Zeitangaben: um, am, im, seit, vor",b:`
+${T([['um','Uhrzeit','um 8 Uhr'],['am','Tag, Tageszeit, Datum, Wochenende','am Montag, am Abend, am 3. Mai'],['im','Monat, Jahreszeit','im Juli, im Winter'],['in der','Nacht, Woche','in der Nacht, in der nächsten Woche'],['seit + Dat.','Beginn in der Vergangenheit, dauert an','seit drei Jahren'],['vor + Dat.','Zeitpunkt in der Vergangenheit','vor zwei Tagen'],['von … bis','Zeitraum','von 9 bis 17 Uhr'],['ab','Beginn ab jetzt/Zukunft','ab Montag']],["Wort","Wann?","Beispiel"])}`},
+{id:"genitiv",lvl:"A2",t:"Genitiv",b:`
+<p>Maskulin/neutral: <b>des</b> + Nomen + (e)s · Feminin/Plural: <b>der</b>. Gesprochen oft „von + Dativ".</p>
+<div class="ex">das Auto <b>des Lehrers</b> = das Auto von dem Lehrer · <b>Annas</b> Buch</div>
+<p>Nach <b>wegen, trotz, während, statt</b>: wegen des Regens, trotz der Kälte.</p>`},
+{id:"adjektiv",lvl:"A2",t:"Adjektivendungen",b:`
+<p>Regel: Das Adjektiv bekommt die Endung, die der Artikel <b>nicht</b> zeigt. Nach Artikel im Dativ und Plural fast immer <b>-en</b>.</p>
+${T([['Nom.','der alt<b>e</b> Mann','die alt<b>e</b> Frau','das alt<b>e</b> Haus','die alt<b>en</b> Leute'],['Akk.','den alt<b>en</b> Mann','die alt<b>e</b> Frau','das alt<b>e</b> Haus','die alt<b>en</b> Leute'],['Dat.','dem alt<b>en</b> Mann','der alt<b>en</b> Frau','dem alt<b>en</b> Haus','den alt<b>en</b> Leuten']],["der/die/das","m.","f.","n.","Pl."])}
+${T([['Nom.','ein alt<b>er</b> Mann','eine alt<b>e</b> Frau','ein alt<b>es</b> Haus','keine alt<b>en</b>'],['Akk.','einen alt<b>en</b> Mann','eine alt<b>e</b> Frau','ein alt<b>es</b> Haus','keine alt<b>en</b>'],['Dat.','einem alt<b>en</b> Mann','einer alt<b>en</b> Frau','einem alt<b>en</b> Haus','keinen alt<b>en</b>']],["ein/kein","m.","f.","n.","Pl."])}
+<p>Ohne Artikel: Endung wie der Artikel: heiß<b>er</b> Kaffee, kalt<b>es</b> Wasser, frisch<b>e</b> Milch, mit frisch<b>em</b> Brot.</p>`},
+{id:"komparativ",lvl:"A2",t:"Komparativ & Superlativ",b:`
+${T([['schnell','schneller','am schnellsten'],['alt','älter','am ältesten'],['groß','größer','am größten'],['gut','besser','am besten'],['viel','mehr','am meisten'],['gern','lieber','am liebsten'],['hoch','höher','am höchsten'],['nah','näher','am nächsten']],["Positiv","Komparativ","Superlativ"])}
+<p>Gleich: <b>so … wie</b> (so groß wie ich). Ungleich: <b>Komparativ + als</b> (größer als ich). Einsilbige mit a, o, u bekommen oft Umlaut.</p>`},
+{id:"reflexiv",lvl:"A1",t:"Reflexive Verben",b:`
+${T([['Akk.','mich','dich','sich','uns','euch','sich'],['Dat.','mir','dir','sich','uns','euch','sich']],["","ich","du","er/sie/es","wir","ihr","sie/Sie"])}
+<p>Dativ, wenn es schon ein Akkusativobjekt gibt: Ich wasche <b>mich</b>. → Ich wasche <b>mir</b> die Hände.</p>
+<p>Häufig: sich freuen (auf/über), sich treffen, sich interessieren für, sich erinnern an, sich ärgern über, sich anmelden, sich beeilen.</p>`},
+{id:"imperativ",lvl:"A1",t:"Imperativ",b:`
+${T([['machen','Mach!','Macht!','Machen Sie!'],['nehmen','Nimm!','Nehmt!','Nehmen Sie!'],['fahren','Fahr!','Fahrt!','Fahren Sie!'],['sein','Sei!','Seid!','Seien Sie!']],["","du","ihr","Sie"])}
+<p>du: Verb ohne -st und ohne du. e → i bleibt (Nimm! Lies!), a → ä fällt weg (Fahr! Schlaf!). Höflicher mit <b>bitte</b> und <b>mal</b>.</p>`},
+{id:"konjunktiv",lvl:"A2",t:"Konjunktiv II: höflich bitten, Ratschläge, Wünsche",b:`
+${T([['Höfliche Bitte','Könnten Sie mir helfen? · Würden Sie das Fenster schließen?'],['Bestellen','Ich hätte gern einen Kaffee. · Ich würde gern bestellen.'],['Ratschlag','Du solltest mehr schlafen. · An deiner Stelle würde ich …'],['Wunsch','Ich wäre gern am Meer.'],['Irreal','Wenn ich Zeit hätte, würde ich kommen.']],["Funktion","Beispiel"])}
+<p>Formen: wäre, hätte, könnte, müsste, sollte, dürfte – sonst <b>würde + Infinitiv</b>.</p>`},
+{id:"passiv",lvl:"A2",t:"Passiv",b:`
+<p>Der Vorgang ist wichtig, nicht die Person: <b>werden</b> + Partizip II.</p>
+${T([['Präsens','Das Essen wird gekocht.'],['Präteritum','Das Essen wurde gekocht.'],['Perfekt','Das Essen ist gekocht worden.'],['mit Modalverb','Das Essen muss gekocht werden.']],["Zeit","Beispiel"])}
+<p>Person: <b>von</b> + Dativ (vom Koch). Typisch für Rezepte und Anleitungen: Die Zwiebeln werden geschnitten.</p>`},
+{id:"zuinf",lvl:"A2",t:"Infinitiv mit und ohne zu",b:`
+<p><b>Mit zu</b>: nach Verben wie anfangen, aufhören, vergessen, versuchen, hoffen, planen, Lust/Zeit haben, es ist wichtig/schön … – trennbar: an<b>zu</b>rufen.</p>
+<p><b>Ohne zu</b>: nach Modalverben, werden, lassen, gehen, bleiben, lernen, sehen, hören (Lektion 31).</p>
+<div class="ex">Ich habe vergessen, dich an<b>zu</b>rufen. · Wir gehen heute schwimmen. · Ich lerne Deutsch, <b>um</b> in Berlin <b>zu</b> arbeiten.</div>`},
+{id:"vermutung",lvl:"A2",t:"Vermutungen äußern",b:`
+${T([['sicher','Er muss krank sein.','fast 100 %'],['wahrscheinlich','Er wird wohl krank sein. · Wahrscheinlich ist er krank.','ca. 75 %'],['möglich','Er könnte krank sein. · Vielleicht ist er krank.','ca. 50 %']],["Wie sicher?","Beispiel",""])}
+<p>Weitere Redemittel: Ich glaube / vermute, dass … · Es kann sein, dass … · Ich bin nicht sicher, aber …</p>`},
+{id:"adjnomen",lvl:"A2",t:"Adjektive als Nomen",b:`
+<p>Adjektive werden zu Nomen: groß geschrieben, Endung wie ein Adjektiv.</p>
+<div class="ex">der Deutsche / ein Deutscher · die Kranken · alles <b>Gute</b> · etwas <b>Neues</b> · nichts <b>Besonderes</b></div>
+<p>Nach etwas, nichts, viel, wenig: <b>-es</b>. Nach alles: <b>-e</b>.</p>`},
+{id:"dakomp",lvl:"A2",t:"wo(r)- und da(r)- + Präposition",b:`
+<p>Bei <b>Sachen</b>: Frage mit wo(r)- + Präposition, Antwort mit da(r)- + Präposition. Vor Vokal kommt ein <b>r</b>: worauf, darauf, woran, daran.</p>
+${T([['warten auf','Worauf wartest du?','Ich warte darauf.'],['denken an','Woran denkst du?','Ich denke daran.'],['sich interessieren für','Wofür interessierst du dich?','Ich interessiere mich dafür.'],['träumen von','Wovon träumst du?','Ich träume davon.'],['sprechen über','Worüber sprecht ihr?','Wir sprechen darüber.']],["Verb","Frage","Antwort"])}
+<p>Bei <b>Personen</b>: Präposition + Pronomen: Auf wen wartest du? – Auf ihn.</p>`},
+{id:"verbprep",lvl:"A2",t:"Verben & Adjektive mit fester Präposition",b:`
+<p>Die Präposition gehört zum Verb – lerne sie als Paket: <b>warten auf + Akk.</b>, <b>sich freuen auf + Akk.</b> (Zukunft), <b>sich freuen über + Akk.</b> (jetzt/vorbei), <b>teilnehmen an + Dat.</b>, <b>Angst haben vor + Dat.</b>, <b>stolz auf + Akk.</b>, <b>zufrieden mit + Dat.</b></p>
+<p>Faustregel: <b>auf, über</b> → meist Akkusativ. <b>mit, von, zu, bei, nach, vor, an</b> (bei Zustand) → oft Dativ.</p>`},
+{id:"relativ",lvl:"A2",t:"Relativsätze",b:`
+${T([['Nom.','der','die','das','die'],['Akk.','den','die','das','die'],['Dat.','dem','der','dem','<mark>denen</mark>']],["","m.","f.","n.","Pl."])}
+<p>Genus/Zahl vom Bezugswort, Kasus vom Verb im Relativsatz. Verb am Ende.</p>
+<div class="ex">Das ist der Mann, <b>dem</b> ich geholfen habe. (helfen + Dat.)</div>`},
+{id:"negation",lvl:"A1",t:"nicht oder kein? – und doch",b:`
+<p><b>kein</b> verneint Nomen mit ein/ohne Artikel (Endungen wie ein): Ich habe <b>kein</b> Auto / <b>keine</b> Zeit / <b>keinen</b> Hunger.</p>
+<p><b>nicht</b> verneint alles andere: Verben, Adjektive, Nomen mit der/die/das: Ich komme <b>nicht</b>. Das ist <b>nicht</b> mein Auto.</p>
+<p><b>doch</b> = Ja auf eine negative Frage: Kommst du nicht? – <b>Doch!</b></p>`},
+{id:"fragen",lvl:"A1",t:"Fragewörter",b:`
+${T([['wer / wen / wem','Person (Nom. / Akk. / Dat.)'],['was','Sache'],['wo / wohin / woher','Ort / Richtung / Herkunft'],['wann · wie lange · seit wann','Zeit'],['wie · wie viel · wie viele','Art · Menge (nicht zählbar) · Anzahl'],['warum','Grund'],['welcher / welche / welches','Auswahl'],['was für ein','Art von etwas']],["Fragewort","Frage nach"])}`},
+{id:"plural",lvl:"A1",t:"Pluralformen",b:`
+${T([['-e / ¨-e','meist maskulin','der Tisch → die Tische, der Stuhl → die Stühle'],['-er / ¨-er','meist neutral, einsilbig','das Kind → die Kinder, das Haus → die Häuser'],['-n / -en','fast alle feminin','die Lampe → die Lampen, die Zeitung → die Zeitungen'],['-s','Fremdwörter, Vokal am Ende','das Auto → die Autos, das Hotel → die Hotels'],['– / ¨–','-er, -el, -en, -chen, -lein','der Lehrer → die Lehrer, der Vater → die Väter'],['-nen','feminin auf -in','die Ärztin → die Ärztinnen']],["Endung","Typisch","Beispiele"])}
+<p>Plural-Artikel ist immer <b>die</b>. Im Dativ Plural kommt ein <b>-n</b> dazu: mit den Kinder<b>n</b> (außer bei -s und -n).</p>`},
+];
+const HELP_BY = Object.fromEntries(HELP.map(h => [h.id, h]));
+
+/* ---------------- decks ---------------- */
+const nounsLvl = () => D.nouns.filter(n => lvlOk(n.l));
+const DECKS = [
+{ id: "artikel", ico: "der", g3: true, title: "der, die, das", desc: "Den richtigen Artikel wählen – mit Endungsregeln.", help: "artikel",
+  pool: () => nounsLvl().map(n => ({ id: "a:" + n.w, n })),
+  make: ({ n }) => ({
+    kind: "mcq", three: true, meta: n.t, speak: `${n.a} ${n.w}`, stripe: null,
+    q: `<div class="q">${esc(n.w)}</div><div class="sub">${esc(n.en)}</div>`,
+    opts: ["der", "die", "das"], answer: n.a, fixed: true,
+    hint: genderHint(n),
+    after: ok => `<p><span class="art ${n.a}">${n.a}</span> <b>${esc(n.w)}</b> · Plural: ${n.np ? "–" : n.p ? "die " + esc(n.p) : "kein Plural"}</p>${genderAfter(n) ? `<p>${genderAfter(n)}</p>` : ""}${n.ex ? `<p class="tapnote">„${esc(n.ex[0])}"</p>` : ""}`,
+  }) },
+{ id: "plural", ico: "-e", title: "Pluralformen", desc: "Wie heißt die Mehrzahl? Endungsmuster erkennen.", help: "plural",
+  pool: () => nounsLvl().filter(n => n.p && !n.np && n.p !== "").map(n => ({ id: "p:" + n.w, n })),
+  make: ({ n }) => ({
+    kind: "mcq", meta: "Plural", speak: `die ${n.p}`,
+    q: `<div class="q"><span class="art ${n.a}">${n.a}</span> ${esc(n.w)}</div><div class="sub">${esc(n.en)} → die … ?</div>`,
+    opts: pluralOptions(n).map(x => "die " + x), answer: "die " + n.p,
+    hint: [pluralHint(n)],
+    after: () => `<p><b>${n.a} ${esc(n.w)} → die ${esc(n.p)}</b></p><p>${pluralHint(n)}</p>`,
+  }) },
+{ id: "woerter", ico: "Aa", title: "Wörter", desc: "Karteikarten Deutsch ↔ Englisch: Nomen, Adjektive, Themen.", help: "start",
+  pool: () => [
+    ...nounsLvl().map(n => ({ id: "w:" + n.w, de: `<span class="art ${n.a}">${n.a}</span> ${esc(n.w)}`, say: `${n.a} ${n.w}`, en: n.en, extra: n.np ? "" : n.p ? `Plural: die ${esc(n.p)}` : "kein Plural", ex: n.ex, art: n.a, t: n.t })),
+    ...D.vocab.filter(v => lvlOk(v.l)).map(v => ({ id: "v:" + v.de, de: esc(v.de).replace(/^(der|die|das) /, (m, a) => `<span class="art ${a}">${a}</span> `), say: v.de, en: v.en, t: v.t })),
+  ],
+  make: c => {
+    const dir = S.settings.dir === "mix" ? (Math.random() < .5 ? "de-en" : "en-de") : S.settings.dir;
+    const de = `<div class="q${c.de.length > 60 ? " long" : ""}">${c.de}</div>`, en = `<div class="q long">${esc(c.en)}</div>`;
+    return {
+      kind: "flip", meta: c.t || "", speak: c.say, stripe: c.art,
+      front: dir === "de-en" ? de : en, back: `${dir === "de-en" ? en : de}${c.extra ? `<div class="sub">${c.extra}</div>` : ""}${c.ex ? `<div class="ex">„${esc(c.ex[0])}"<br>${esc(c.ex[1])}</div>` : ""}`,
+      speakFront: dir === "de-en",
+      hint: c.art ? genderHint(NOUN[c.say.split(" ")[1]] || { w: "" }) : ["Denk an ein Beispiel aus deinem Alltag. Tipp: Sprich das Wort laut nach dem Umdrehen."],
+    };
+  } },
+{ id: "verben", ico: "ging", title: "Verbformen", desc: "Präsens, Präteritum, Perfekt – 280 Verben, die häufigsten zuerst.", help: "perfekt",
+  pool: () => D.verbs.filter(v => lvlOk(v.l) || v.freq).flatMap(v => ["er", "prt", "perf"].filter(f => v[f]).map(f => ({ id: `vf:${v.i}:${f}`, v, f }))),
+  make: ({ v, f }) => ({
+    kind: "mcq", meta: FIELD[f], speak: f === "er" ? `er ${v.er}` : f === "prt" ? `er ${v.prt}` : `er ${v.perf}`,
+    q: `<div class="q">${esc(v.i)}</div><div class="sub">${esc(v.en)}${v.freq ? ` · Top ${v.freq <= 25 ? 25 : v.freq <= 50 ? 50 : 100}` : ""}</div><div class="sub"><b>${FIELD[f]}</b> <span class="blank">?</span></div>`,
+    opts: verbOptions(v, f), answer: v[f],
+    hint: verbHint(v, f),
+    after: () => `${T([["Präsens", "er " + esc(v.er)], ["Präteritum", "er " + esc(v.prt)], ["Perfekt", "er " + esc(v.perf)]])}${v.ex ? `<p class="tapnote">„${esc(v.ex[0])}"</p>` : ""}`,
+  }) },
+{ id: "praep", ico: "auf", title: "Verben mit Präposition", desc: "warten auf, Angst vor, stolz auf … mit Kasus.", help: "verbprep",
+  pool: () => [...D.verbprep.map(x => ({ ...x, id: "vp:" + x.v + x.p })), ...D.adjprep.map(x => ({ ...x, p: x.p.includes("ohne") ? "" : `${x.v.split(" ").pop()} + ${x.p}`, v: x.v.split(" ").slice(0, -1).join(" ") || x.v, id: "ap:" + x.v }))].filter(x => x.p),
+  make: x => {
+    const all = uniq([...D.verbprep.map(y => y.p), "auf + Akk.", "an + Dat.", "an + Akk.", "über + Akk.", "mit + Dat.", "für + Akk.", "von + Dat.", "vor + Dat.", "zu + Dat."]);
+    return {
+      kind: "mcq", meta: "feste Präposition", speak: x.ex,
+      q: `<div class="q">${esc(x.v)} <span class="blank">?</span></div><div class="sub">${esc(x.en)}</div>`,
+      opts: [x.p, ...pick(all.filter(p => p !== x.p), 3)], answer: x.p,
+      hint: [HELP_BY.verbprep.b.match(/<p>Faustregel.*?<\/p>/)[0].replace(/<\/?p>/g, "")],
+      after: () => `<p><b>${esc(x.v)} ${esc(x.p)}</b></p><p class="tapnote">${esc(x.ex)}</p>`,
+    };
+  } },
+{ id: "luecken", ico: "_ _", title: "Lückensätze", desc: "Beispielsätze aus der Goethe-Wortliste A1/A2 ergänzen.", help: "satzbau",
+  pool: () => D.cloze.filter(c => lvlOk(c.l)).map((c, i) => ({ ...c, id: "c:" + c.de })),
+  make: c => {
+    const sameType = D.cloze.filter(o => o.n === c.n && o.a.toLowerCase() !== c.a.toLowerCase() && Math.abs(o.a.length - c.a.length) <= 4);
+    const opts = uniq([c.a, ...pick(sameType, 8).map(o => (c.a[0] === c.a[0].toUpperCase() && !c.n && c.de.startsWith(c.a)) ? o.a[0].toUpperCase() + o.a.slice(1) : o.a)]).slice(0, 4);
+    const blanked = esc(c.de).replace(new RegExp(`(^|[^\\wÄÖÜäöüß])${c.a.replace(/[-]/g, "\\-")}(?=[^\\wÄÖÜäöüß]|$)`), `$1<span class="blank">&nbsp;</span>`);
+    return {
+      kind: "mcq", meta: "Goethe " + c.l, speak: c.de,
+      q: `<div class="q long">${blanked}</div><div class="sub">${esc(c.en)}</div>`,
+      opts, answer: c.a,
+      hint: ["Lies zuerst die englische Übersetzung. Dann prüfe: Passt die Wortart (Nomen groß, Verb mit Endung) und die Position im Satz (Verb auf Position 2 oder am Ende)?"],
+      after: () => `<p>${esc(c.de)}</p>`,
+    };
+  } },
+{ id: "grammatik", ico: "§", title: "Grammatik-Quiz", desc: "Fälle, Perfekt, Nebensätze, Präpositionen, Passiv …", help: "kasus",
+  pool: (topic) => GQ.filter(g => !topic || g[0] === topic).map(g => ({ id: "g:" + g[1], g })),
+  make: ({ g }) => {
+    const [topic, q, opts, why] = g;
+    return {
+      kind: "mcq", meta: (HELP_BY[topic] || {}).t || topic, speak: q.replace("___", opts[0]), topic,
+      q: `<div class="q long">${esc(q).replace("___", '<span class="blank">&nbsp;</span>')}</div>`,
+      opts: opts.slice(), answer: opts[0],
+      hint: [`Regel: <b>${esc((HELP_BY[topic] || {}).t || "")}</b> – tippe unten auf „Regel ansehen".`],
+      after: () => `<p>${esc(q.replace("___", opts[0]))}</p><p>${why}</p>`,
+    };
+  } },
+{ id: "gegenteile", ico: "↔", title: "Gegenteile", desc: "Adjektive als Paare lernen: alt ↔ jung.", help: "komparativ",
+  pool: () => D.antonyms.map(a => { const [l, r] = a.de.split("↔").map(s => s.trim()); const [le, re] = a.en.split("↔").map(s => s.trim()); return { id: "ant:" + a.de, l, r, le, re }; }),
+  make: a => {
+    const others = D.antonyms.map(x => x.de.split("↔")[1].trim()).filter(x => x !== a.r);
+    return {
+      kind: "mcq", meta: "Gegenteil", speak: `${a.l.replace(/\(.*?\)/g, "")}, ${a.r.replace(/\(.*?\)/g, "")}`,
+      q: `<div class="q">${esc(a.l)}</div><div class="sub">${esc(a.le)} ↔ ?</div>`,
+      opts: [a.r, ...pick(others, 3)], answer: a.r,
+      hint: [`Englisch: <b>${esc(a.le)} ↔ ${esc(a.re)}</b>`],
+      after: () => `<p><b>${esc(a.l)} ↔ ${esc(a.r)}</b></p><p class="tapnote">${esc(a.le)} ↔ ${esc(a.re)}</p>`,
+    };
+  } },
+{ id: "saetze", ico: "„…“", title: "Alltagssätze", desc: "Redemittel und 55 Sätze, die man wirklich braucht.", help: "konjunktiv",
+  pool: () => D.phrases.map(p => ({ id: "ph:" + p.de, ...p })),
+  make: p => {
+    const dir = S.settings.dir === "mix" ? (Math.random() < .5 ? "de-en" : "en-de") : S.settings.dir;
+    const de = `<div class="q long">${esc(p.de)}</div>`, en = `<div class="q long">${esc(p.en)}</div>`;
+    return { kind: "flip", meta: p.t, speak: p.de, front: dir === "de-en" ? de : en, back: dir === "de-en" ? en : de, speakFront: dir === "de-en",
+      hint: ["Versuche, den Satz laut zu sagen, bevor du umdrehst. Achte auf die Verbposition."] };
+  } },
+];
+const DECK_BY = Object.fromEntries(DECKS.map(d => [d.id, d]));
+
+/* ---------------- views ---------------- */
+let view = "home", session = null;
+const main = $("#main"), head = $("#head");
+function setTab(t) {
+  view = t; session = null;
+  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-current", b.dataset.tab === t ? "page" : "false"));
+  $("#tabs").hidden = false; main.className = "";
+  ({ home: renderHome, help: renderHelp, stats: renderStats })[t]();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => setTab(b.dataset.tab));
+
+// product mark: an index card with its tab, the Kartei the app is named after
+const MARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2" fill="currentColor"/><rect x="6" y="3.5" width="7" height="5" rx="1.2" fill="currentColor"/><path d="M7 13h10M7 16.5h6" stroke="var(--ground)" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const brand = (sub = "A1 · A2") => `<div class="brand">${MARK}Lernkartei <span class="lv">${sub}</span></div>`;
+function headerHome() {
+  const n = streak();
+  head.innerHTML = `${brand()}<div class="spacer"></div><span class="chip">${n} ${n === 1 ? "Tag" : "Tage"} in Folge</span>`;
+}
+function deckProgress(d) {
+  const pool = d.pool(); if (!pool.length) return [0, 0];
+  let m = 0; for (const it of pool) if (box(it.id) >= 3) m++;
+  return [m, pool.length];
+}
+function levelSeg() {
+  return `<div class="seg" role="group" aria-label="Niveau">${["A1", "A2", "A1+A2"].map(l => `<button data-level="${l}" aria-pressed="${S.settings.level === l}">${l === "A1+A2" ? "A1 + A2" : l}</button>`).join("")}</div>`;
+}
+function bindLevel(root, rerender) {
+  root.querySelectorAll("[data-level]").forEach(b => b.onclick = () => { S.settings.level = b.dataset.level; save(); rerender(); });
+}
+// the Leitner box: how many seen cards sit in each Fach, plus the ones never seen
+function karteiHtml() {
+  const counts = [0, 0, 0, 0, 0, 0];
+  for (const c of Object.values(S.cards)) counts[c.b]++;
+  const seen = counts.reduce((a, b) => a + b, 0);
+  const total = DECKS.reduce((a, d) => a + d.pool().length, 0);
+  const cols = counts.map((n, b) => ({ n, lbl: `Fach ${b}`, cls: b >= 3 ? "safe" : "" }));
+  const max = Math.max(1, ...counts); // one scale for all six boxes; the unseen pile is stated in words, not drawn
+  return `<div class="panel kartei" aria-label="Karten pro Fach">
+    ${seen ? `<div class="bars">${cols.map(c => `<div class="col ${c.cls}"><b>${c.n.toLocaleString("de-DE")}</b><span class="fill" style="height:${Math.round(100 * c.n / max)}%"></span></div>`).join("")}</div>`
+      : `<p class="muted" style="margin:0;font-size:14px">Alle Fächer sind leer. Nach deiner ersten Runde siehst du hier, wie viele Karten in jedem Fach liegen.</p>`}
+    <div class="labels">${cols.map(c => `<span>${c.lbl}</span>`).join("")}</div>
+    <div class="key"><span><i style="background:var(--text)"></i>noch üben</span><span><i style="background:var(--hue)"></i>sicher</span><span>${Math.max(0, total - seen).toLocaleString("de-DE")} Karten noch nie gesehen</span></div>
+  </div>`;
+}
+function finding() {
+  const cards = Object.values(S.cards), back = cards.filter(c => c.b === 0).length, safe = cards.filter(c => c.b >= 3).length;
+  if (!cards.length) return "Noch keine Karte gelernt. Fang mit der, die, das an – 15 Karten dauern etwa drei Minuten.";
+  if (back) return `${back} ${back === 1 ? "Karte liegt" : "Karten liegen"} in Fach 0 und ${back === 1 ? "kommt" : "kommen"} in der nächsten Runde zuerst.`;
+  return `${safe} von ${cards.length} gesehenen Karten sind sicher. Zeit für neue Karten.`;
+}
+function renderHome() {
+  headerHome();
+  const todayN = S.days[today()] || 0, acc = S.total ? Math.round(100 * S.right / S.total) : null;
+  const last = DECK_BY[S.last] || DECK_BY.artikel;
+  main.innerHTML = `<div class="wrap">
+    <div class="titlerow"><h1>Heute üben</h1><p>${esc(finding())}</p>
+      <button class="btn primary go" id="go">Weiterlernen: ${esc(last.title)}</button></div>
+    <div class="panel kpis">
+      <div class="kpi"><span>Heute</span><b>${todayN}</b><span>Karten</span></div>
+      <div class="kpi"><span>Richtig</span><b>${acc === null ? "–" : acc + " %"}</b><span>beim ersten Versuch</span></div>
+      <div class="kpi"><span>Sicher</span><b>${Object.values(S.cards).filter(c => c.b >= 3).length}</b><span>Fach 3–5</span></div>
+    </div>
+    <div class="blockhead"><h2>Deine Kartei</h2><small>Richtig: ein Fach höher · falsch: zurück in Fach 0</small></div>
+    ${karteiHtml()}
+    <div class="blockhead"><h2>Stapel</h2><small>Niveau</small></div>
+    ${levelSeg()}
+    <div class="panel decks" style="margin-top:var(--gap)">${DECKS.map(d => { const [m, n] = deckProgress(d); return `
+      <button class="deck" data-deck="${d.id}">
+        <h3>${esc(d.title)}</h3><p>${esc(d.desc)}</p>
+        <span class="score"><span>${m.toLocaleString("de-DE")} / ${n.toLocaleString("de-DE")}</span><span class="bar"><i style="width:${n ? (100 * m / n).toFixed(1) : 0}%"></i></span><small>sicher</small></span>
+      </button>`; }).join("")}</div>
+    <p class="foot">Quellen: deine Kursunterlagen (A1/A2 Wortschatz & Verben, Lektionen 1–50, Präpositionen, Alltagssätze),
+      die <a href="https://www.goethe.de/pro/relaunch/prf/de/A1_SD1_Wortliste_02.pdf" target="_blank" rel="noopener">Goethe-Wortliste A1</a> und
+      <a href="https://www.goethe.de/pro/relaunch/prf/en/Goethe-Zertifikat_A2_Wortliste.pdf" target="_blank" rel="noopener">A2</a>
+      (Beispielsätze über <a href="https://github.com/ilkermeliksitki/goethe-institute-wordlist" target="_blank" rel="noopener">diese TSV-Fassung</a>)
+      sowie die 100 häufigsten Verben nach Jones &amp; Tschirner, <i>A Frequency Dictionary of German</i>.</p>
+  </div>`;
+  bindLevel(main, renderHome);
+  main.querySelectorAll("[data-deck]").forEach(b => b.onclick = () => startDeck(b.dataset.deck));
+  $("#go").onclick = () => startDeck(last.id);
+}
+
+/* ---------------- session ---------------- */
+function startDeck(id, topic) {
+  const d = DECK_BY[id];
+  const pool = d.pool(topic);
+  if (!pool.length) { toast("Für dieses Niveau gibt es hier keine Karten. Wähle A1 + A2."); return; }
+  S.last = id; save();
+  const items = choose(pool, Math.min(S.settings.size, pool.length));
+  session = { d, topic, queue: items.map(it => ({ it, retry: false })), i: 0, done: 0, right: 0, missed: [], total: items.length, cur: null };
+  view = "play"; $("#tabs").hidden = true; main.className = "play";
+  next();
+}
+function playHeader() {
+  const s = session;
+  head.innerHTML = `<button class="iconbtn" id="quit" aria-label="Zurück zur Übersicht">${ICON.back}</button>
+    <div class="playhead" style="flex:1"><div class="progress"><i style="width:${(100 * s.done / s.total).toFixed(1)}%"></i></div><span class="count">${Math.min(s.done + 1, s.total)}/${s.total}</span></div>
+    <button class="iconbtn tip" id="tipbtn">${ICON.bulb}Tipp</button>`;
+  $("#quit").onclick = () => setTab("home");
+  $("#tipbtn").onclick = openTip;
+}
+function next() {
+  const s = session;
+  if (s.i >= s.queue.length) return finish();
+  const entry = s.queue[s.i];
+  const card = s.d.make(entry.it);
+  s.cur = { entry, card, answered: false, flipped: false, hintShown: false };
+  if (card.kind === "mcq" && !card.fixed) card.opts = shuffle(uniq(card.opts));
+  playHeader();
+  card.kind === "mcq" ? renderMcq() : renderFlip();
+  if (S.settings.autoSpeak && card.kind === "flip" && card.speakFront) say(card.speak);
+  window.scrollTo(0, 0);
+}
+function cardMeta(card) {
+  const b = box(session.cur.entry.it.id);
+  return `<div class="meta"><span>${esc(card.meta || "")}</span><span>Fach ${b} von 5</span></div>`;
+}
+function renderMcq() {
+  const { card } = session.cur;
+  main.innerHTML = `<div class="wrap stage">
+    <div class="card">${cardMeta(card)}${card.q}<button class="say" id="say" aria-label="Vorlesen">${ICON.speak}</button></div>
+    <div id="hintslot"></div>
+    <div class="opts${card.three ? " three" : ""}" id="opts">${card.opts.map(o => `<button class="opt${card.three ? " " + o : ""}" data-o="${esc(o)}"><span>${esc(o)}</span><span class="mark"></span></button>`).join("")}</div>
+    <div id="fb"></div>
+  </div>`;
+  // before answering, read only what is visible (never the answer)
+  $("#say").onclick = () => say(session.cur.answered ? card.speak : $(".card .q").textContent);
+  main.querySelectorAll(".opt").forEach(b => b.onclick = () => answerMcq(b.dataset.o));
+}
+function answerMcq(o) {
+  const s = session, c = s.cur; if (c.answered) return;
+  c.answered = true;
+  const ok = o === c.card.answer;
+  main.querySelectorAll(".opt").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.o === c.card.answer) { b.classList.add("right"); $(".mark", b).innerHTML = ICON.check; }
+    else if (b.dataset.o === o) { b.classList.add("wrong"); $(".mark", b).innerHTML = ICON.cross; }
+    else b.classList.add("dim");
+  });
+  grade(ok);
+  if (ok) say(c.card.speak);
+  const helpId = c.card.topic || s.d.help;
+  $("#fb").innerHTML = `<div class="feedback ${ok ? "ok" : "bad"}"><h3>${ok ? ICON.check + "Richtig!" : ICON.cross + "Leider falsch"}</h3>${c.card.after(ok)}</div>
+    <div class="actions${helpId ? "" : " one"}">${helpId ? `<button class="btn ghost" id="rule">Regel ansehen</button>` : ""}<button class="btn primary" id="nextbtn">Weiter</button></div>`;
+  $("#nextbtn").onclick = advance; $("#nextbtn").focus({ preventScroll: true });
+  if (helpId) $("#rule").onclick = () => openHelpSheet(helpId);
+  $("#fb").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+function grade(ok) {
+  const s = session, e = s.cur.entry;
+  record(e.it.id, ok);
+  if (!e.retry) { s.done++; if (ok) s.right++; else s.missed.push(s.cur.card); }
+  if (!ok && !e.retry) s.queue.splice(Math.min(s.i + 4, s.queue.length), 0, { it: e.it, retry: true });
+}
+function advance() { session.i++; next(); }
+function renderFlip() {
+  const { card } = session.cur;
+  main.innerHTML = `<div class="wrap stage">
+    <div class="card flip" id="fcard" role="button" tabindex="0" aria-label="Karte umdrehen">${cardMeta(card)}
+      <div id="face">${card.front}<div class="tapnote">Tippen zum Umdrehen</div></div>
+      <button class="say" id="say" aria-label="Vorlesen">${ICON.speak}</button></div>
+    <div id="hintslot"></div>
+    <div class="actions one" id="acts"><button class="btn primary" id="flipbtn">Umdrehen</button></div>
+  </div>`;
+  const fc = $("#fcard");
+  $("#say").onclick = e => { e.stopPropagation(); say(card.speak); };
+  fc.onclick = flip; fc.onkeydown = e => { if (e.key === "Enter") flip(); };
+  $("#flipbtn").onclick = flip;
+  // swipe after flip: left = again, right = good
+  let x0 = null;
+  fc.addEventListener("pointerdown", e => { x0 = e.clientX; });
+  fc.addEventListener("pointerup", e => {
+    if (x0 === null || !session.cur.flipped) return; const dx = e.clientX - x0; x0 = null;
+    if (Math.abs(dx) > 60) { fc.classList.add(dx > 0 ? "swipe-r" : "swipe-l"); setTimeout(() => rateFlip(dx > 0), 150); }
+  });
+}
+function flip() {
+  const c = session.cur; if (c.flipped) return;
+  c.flipped = true;
+  $("#face").innerHTML = `<div class="back">${c.card.front}<div class="divider"></div>${c.card.back}</div>`;
+  if (!c.card.speakFront || S.settings.autoSpeak) say(c.card.speak);
+  $("#acts").className = "actions";
+  $("#acts").innerHTML = `<button class="btn again" id="again">Nochmal</button><button class="btn good" id="good">Gewusst</button>`;
+  $("#again").onclick = () => rateFlip(false); $("#good").onclick = () => rateFlip(true);
+}
+function rateFlip(ok) { const c = session.cur; if (c.answered) return; c.answered = true; grade(ok); advance(); }
+function finish() {
+  const s = session, pct = s.total ? Math.round(100 * s.right / s.total) : 0;
+  head.innerHTML = `<button class="iconbtn" id="quit" aria-label="Zurück">${ICON.back}</button><div class="brand">${esc(s.d.title)}</div>`;
+  $("#quit").onclick = () => setTab("home");
+  const msg = pct >= 90 ? "Ausgezeichnet!" : pct >= 70 ? "Gut gemacht!" : pct >= 50 ? "Weiter so – Übung macht den Meister." : "Nicht aufgeben! Schau dir die Regeln an.";
+  main.innerHTML = `<div class="wrap result">
+    <h1>Runde beendet</h1>
+    <div class="panel kpis">
+      <div class="kpi"><span>Beim ersten Versuch</span><b>${pct} %</b><span>${s.right} von ${s.total} richtig</span></div>
+    </div>
+    <p style="margin:0">${msg}</p>
+    ${s.missed.length ? `<div class="blockhead"><h2>Wiederholen</h2><small>${s.missed.length} ${s.missed.length === 1 ? "Karte" : "Karten"}</small></div><div class="panel missed">${s.missed.map(c => `<div>${missedLine(c)}</div>`).join("")}</div>` : ""}
+    <div class="actions"><button class="btn ghost" id="home">Übersicht</button><button class="btn primary" id="again">Neue Runde</button></div>
+    ${s.d.help ? `<button class="btn ghost" id="rule">Regel: ${esc(HELP_BY[s.d.help].t)}</button>` : ""}
+  </div>`;
+  $("#home").onclick = () => setTab("home");
+  $("#again").onclick = () => startDeck(s.d.id, s.topic);
+  if ($("#rule")) $("#rule").onclick = () => openHelpSheet(s.d.help);
+  window.scrollTo(0, 0);
+}
+function missedLine(c) {
+  const tmp = document.createElement("div"); tmp.innerHTML = c.q || c.front; const q = tmp.textContent.trim().slice(0, 90);
+  if (c.kind === "mcq") return `${esc(q)} <span>→</span> <b>${esc(c.answer)}</b>`;
+  tmp.innerHTML = c.back; return `${esc(q)} <span>→</span> <b>${esc(tmp.textContent.trim().slice(0, 90))}</b>`;
+}
+
+/* ---------------- tip / help sheet ---------------- */
+function openSheet(title, html) {
+  const el = $("#sheet");
+  el.innerHTML = `<div class="sheet-bg" id="sbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="grab"></div><div class="sheet-head"><h2>${esc(title)}</h2><button class="iconbtn" id="sclose" aria-label="Schließen">${ICON.close}</button></div>${html}</div></div>`;
+  $("#sbg").onclick = e => { if (e.target.id === "sbg") closeSheet(); };
+  $("#sclose").onclick = closeSheet; $("#sclose").focus();
+}
+function closeSheet() { $("#sheet").innerHTML = ""; }
+function openTip() {
+  const c = session.cur, card = c.card;
+  const help = HELP_BY[card.topic || session.d.help];
+  const hints = (card.hint || []).map(h => `<p>${h}</p>`).join("");
+  openSheet("Tipp", `<div class="hintbox"><b class="lbl">Hinweis zu dieser Karte</b>${hints}</div>
+    ${help ? `<h3>Regel: ${esc(help.t)}</h3><div class="tbody" style="padding:0">${help.b}</div>` : ""}
+    <button class="btn ghost" id="allhelp">Alle Grammatik-Themen</button>`);
+  $("#allhelp").onclick = () => { closeSheet(); openSheet("Grammatik", helpListHtml("")); bindHelpList($("#sheet")); };
+}
+function openHelpSheet(id) { const h = HELP_BY[id]; openSheet(h.t, `<div class="tbody" style="padding:0">${h.b}</div>`); }
+
+/* ---------------- help view ---------------- */
+const quizTopics = new Set(GQ.map(g => g[0]));
+function helpListHtml(q) {
+  const ql = q.toLowerCase();
+  const list = HELP.filter(h => !ql || (h.t + " " + h.b.replace(/<[^>]+>/g, " ")).toLowerCase().includes(ql));
+  if (!list.length) return `<p style="color:var(--muted)">Kein Thema gefunden. Versuche z. B. „Dativ", „Perfekt" oder „weil".</p>`;
+  return `<div class="panel topics">${list.map(h => `<details class="topic" ${ql && list.length < 4 ? "open" : ""}><summary><h3>${esc(h.t)}</h3>${h.lvl ? `<span class="lvl">${h.lvl}</span>` : ""}</summary>
+    <div class="tbody">${h.b}${quizTopics.has(h.id) ? `<button class="btn primary practice" data-practice="${h.id}">Dieses Thema üben</button>` : ""}</div></details>`).join("")}</div>`;
+}
+function bindHelpList(root) {
+  root.querySelectorAll("[data-practice]").forEach(b => b.onclick = () => { closeSheet(); setTab("home"); startDeck("grammatik", b.dataset.practice); });
+}
+function renderHelp() {
+  head.innerHTML = `${brand("Grammatik")}<div class="spacer"></div><span class="chip">${HELP.length} Themen</span>`;
+  main.innerHTML = `<div class="wrap"><div class="titlerow"><h1>Hilfe & Regeln</h1><p>Kurze Erklärungen mit Tabellen. Bei jedem Thema kannst du direkt passende Aufgaben üben.</p></div>
+    <input class="search" id="hq" type="search" placeholder="Suchen: Dativ, Perfekt, weil …" autocomplete="off" enterkeyhint="search">
+    <div id="hl">${helpListHtml("")}</div></div>`;
+  const hl = $("#hl"); bindHelpList(hl);
+  $("#hq").oninput = e => { hl.innerHTML = helpListHtml(e.target.value.trim()); bindHelpList(hl); };
+}
+
+/* ---------------- stats / settings ---------------- */
+function renderStats() {
+  head.innerHTML = brand("Fortschritt");
+  const st = S.settings;
+  main.innerHTML = `<div class="wrap" style="display:grid;gap:var(--gap)">
+    <div class="titlerow" style="padding-bottom:0"><h1>Fortschritt</h1><p>Gespeichert auf diesem Gerät.</p></div>
+    <div class="panel kpis">
+      <div class="kpi"><span>In Folge</span><b>${streak()}</b><span>Tage</span></div>
+      <div class="kpi"><span>Antworten</span><b>${S.total.toLocaleString("de-DE")}</b><span>insgesamt</span></div>
+      <div class="kpi"><span>Richtig</span><b>${S.total ? Math.round(100 * S.right / S.total) + " %" : "–"}</b><span>aller Antworten</span></div>
+    </div>
+    <div class="blockhead" style="margin:12px 0 0"><h2>Stapel</h2><small>sicher = Fach 3–5</small></div>
+    <div class="panel prog">${DECKS.map(d => { const [m, n] = deckProgress(d); const seen = d.pool().filter(it => S.cards[it.id]).length; return `<div class="row"><b>${esc(d.title)}</b><small>${m.toLocaleString("de-DE")} / ${n.toLocaleString("de-DE")} sicher · ${seen.toLocaleString("de-DE")} gesehen</small><div class="bar"><i style="width:${n ? (100 * m / n).toFixed(1) : 0}%"></i></div></div>`; }).join("")}</div>
+    <div class="blockhead" style="margin:12px 0 0"><h2>Einstellungen</h2></div>
+    <div class="panel"><div class="setting"><span class="lbl">Niveau</span>${levelSeg()}</div>
+    <div class="setting"><span class="lbl">Karten pro Runde</span><div class="seg" role="group" aria-label="Karten pro Runde">${[10, 15, 25, 40].map(n => `<button data-size="${n}" aria-pressed="${st.size === n}">${n}</button>`).join("")}</div></div>
+    <div class="setting"><span class="lbl">Richtung bei Karteikarten</span><div class="seg" role="group" aria-label="Richtung">${[["de-en", "DE → EN"], ["en-de", "EN → DE"], ["mix", "Gemischt"]].map(([v, l]) => `<button data-dir="${v}" aria-pressed="${st.dir === v}">${l}</button>`).join("")}</div></div>
+    <div class="setting"><label class="toggle" for="auto">Automatisch vorlesen<input type="checkbox" id="auto" ${st.autoSpeak ? "checked" : ""}></label><p>Liest deutsche Wörter und Sätze vor (nutzt die Sprachausgabe deines Geräts).</p></div>
+    <div class="setting backup"><span class="lbl">Sicherung</span>
+      <p>Dein Fortschritt liegt nur auf diesem Gerät. Kopiere den Code und bewahre ihn auf (z. B. in Notizen), um ihn auf einem anderen Gerät oder nach einer Neuinstallation einzufügen.</p>
+      <div class="row2"><button class="btn ghost" id="bcopy">Code kopieren</button>${navigator.share ? `<button class="btn ghost" id="bshare">Teilen</button>` : `<button class="btn ghost" id="bshow">Code zeigen</button>`}</div>
+      <label class="lbl" for="bin" style="font-weight:400;color:var(--muted)">Code einfügen</label>
+      <textarea id="bin" placeholder="LK1:…" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+      <div id="bimportbox"><button class="btn primary" id="bimport" style="width:100%">Fortschritt wiederherstellen</button></div>
+    </div>
+    <div class="setting"><span class="lbl">Fortschritt löschen</span><p>Löscht alle Fächer, Statistiken und die Serie auf diesem Gerät.</p><div id="resetbox"><button class="btn ghost danger" id="reset">Fortschritt löschen</button></div></div></div>
+  </div>`;
+  bindLevel(main, renderStats);
+  main.querySelectorAll("[data-size]").forEach(b => b.onclick = () => { st.size = +b.dataset.size; save(); renderStats(); });
+  main.querySelectorAll("[data-dir]").forEach(b => b.onclick = () => { st.dir = b.dataset.dir; save(); renderStats(); });
+  $("#auto").onchange = e => { st.autoSpeak = e.target.checked; save(); if (st.autoSpeak) say("Hallo! Los geht's."); };
+  $("#bcopy").onclick = () => {
+    const code = exportCode();
+    const fallback = () => { const t = $("#bin"); t.value = code; t.focus(); t.select(); toast("Code markiert – jetzt kopieren."); };
+    try { navigator.clipboard.writeText(code).then(() => toast("Code kopiert."), fallback); } catch (e) { fallback(); }
+  };
+  if ($("#bshare")) $("#bshare").onclick = () => { navigator.share({ title: "Lernkartei – Sicherung", text: exportCode() }).catch(() => {}); };
+  if ($("#bshow")) $("#bshow").onclick = () => { const t = $("#bin"); t.value = exportCode(); t.focus(); t.select(); };
+  $("#bimport").onclick = () => {
+    const code = $("#bin").value;
+    if (!code.trim()) { toast("Füge zuerst einen Code ein."); return; }
+    $("#bimportbox").innerHTML = `<p style="margin:0 0 8px">Der Fortschritt auf diesem Gerät wird ersetzt.</p><div class="row2"><button class="btn ghost" id="bno">Abbrechen</button><button class="btn primary" id="byes">Ersetzen</button></div>`;
+    $("#bno").onclick = renderStats;
+    $("#byes").onclick = () => {
+      try { importCode(code); renderStats(); toast("Fortschritt wiederhergestellt."); }
+      catch (e) { renderStats(); $("#bin").value = code; toast(e.message.startsWith("Der Code") ? e.message : "Der Code ist ungültig. Prüfe, ob er vollständig kopiert wurde."); }
+    };
+  };
+  $("#reset").onclick = () => {
+    $("#resetbox").innerHTML = `<p>Alle Fächer, Statistiken und die Serie werden gelöscht.</p><div class="actions" style="position:static"><button class="btn ghost" id="no">Abbrechen</button><button class="btn again" id="yes">Ja, löschen</button></div>`;
+    $("#no").onclick = renderStats;
+    $("#yes").onclick = () => { S.cards = {}; S.days = {}; S.total = 0; S.right = 0; save(); renderStats(); toast("Fortschritt gelöscht."); };
+  };
+}
+function toast(msg) {
+  const t = document.createElement("div");
+  t.textContent = msg; t.setAttribute("role", "status");
+  t.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:12px;z-index:30;font-weight:700;max-width:90%;text-align:center";
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+
+/* ---------------- keyboard ---------------- */
+document.addEventListener("keydown", e => {
+  if ($("#sheet").innerHTML && e.key === "Escape") return closeSheet();
+  if (view !== "play" || !session || !session.cur || e.target.tagName === "INPUT") return;
+  const c = session.cur;
+  if (c.card.kind === "mcq") {
+    if (!c.answered && /^[1-4]$/.test(e.key)) { const b = main.querySelectorAll(".opt")[+e.key - 1]; if (b) b.click(); }
+    else if (c.answered && e.key === "Enter" && !$("#sheet").innerHTML) { e.preventDefault(); advance(); }
+  } else {
+    if (!c.flipped && (e.key === " " || e.key === "Enter")) { e.preventDefault(); flip(); }
+    else if (c.flipped && (e.key === "1" || e.key === "ArrowLeft")) rateFlip(false);
+    else if (c.flipped && (e.key === "2" || e.key === "ArrowRight" || e.key === "Enter")) rateFlip(true);
+  }
+});
+
+setTab(location.hash === "#grammatik" ? "help" : "home");
+// offline support when served as an installed app (not available inside claude.ai previews)
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
